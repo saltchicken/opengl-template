@@ -61,12 +61,12 @@ bool Window::init(unsigned int width, unsigned int height, const char *title) {
 
 Input *Window::getInput() { return m_input_handler.get(); }
 
-bool Window::shouldClose() { return glfwWindowShouldClose(m_window); }
+bool Window::should_close() { return glfwWindowShouldClose(m_window); }
 
-void Window::setShouldClose(bool value) {
+void Window::set_should_close(bool value) {
   glfwSetWindowShouldClose(m_window, value);
 }
 
-void Window::swapBuffers() { glfwSwapBuffers(m_window); }
+void Window::swap_buffers() { glfwSwapBuffers(m_window); }
 
-void Window::pollEvents() { glfwPollEvents(); }
+void Window::poll_events() { glfwPollEvents(); }

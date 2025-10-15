@@ -29,7 +29,7 @@ void Application::run() {
   Input *input = m_window->getInput();
 
   // 2. Main loop
-  while (!m_window->shouldClose()) {
+  while (!m_window->should_close()) {
     m_time->beginFrame();
 
     input->processInput(*m_window);
@@ -38,8 +38,8 @@ void Application::run() {
     m_renderer->draw();
 
     // Swap buffers and poll IO events
-    m_window->swapBuffers();
-    m_window->pollEvents();
+    m_window->swap_buffers();
+    m_window->poll_events();
 
     m_time->endFrame();
   }

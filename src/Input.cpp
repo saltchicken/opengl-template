@@ -5,7 +5,7 @@ Input::Input(GLFWwindow *window) : m_window(window) {}
 
 void Input::processInput(Window &window) {
   if (is_key_pressed(GLFW_KEY_ESCAPE)) {
-    window.setShouldClose(true);
+    window.set_should_close(true);
   }
   // Add other input handling here
 }

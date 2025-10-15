@@ -14,14 +14,14 @@ public:
   bool init(unsigned int width, unsigned int height, const char *title);
 
   // Checks if the window has been flagged to close.
-  bool shouldClose();
-  void setShouldClose(bool value);
+  bool should_close();
+  void set_should_close(bool value);
 
   // Swaps the front and back buffers.
-  void swapBuffers();
+  void swap_buffers();
 
   // Processes all pending events.
-  void pollEvents();
+  void poll_events();
 
   // Getter to access the input handler from the Application class
   Input *getInput();
