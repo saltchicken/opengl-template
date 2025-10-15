@@ -97,3 +97,48 @@ void Shader::checkCompileErrors(unsigned int shader, const std::string& type) {
         }
     }
 }
+
+// Uniform location caching
+int Shader::getUniformLocation(const std::string& name) const {
+    // Check if we have already cached the location
+    if (m_uniformLocationCache.find(name) != m_uniformLocationCache.end()) {
+        return m_uniformLocationCache[name];
+    }
+    // If not, query OpenGL for the location
+    int location = glGetUniformLocation(m_id, name.c_str());
+    if (location == -1) {
+        std::cerr << "Warning: uniform '" << name << "' not found!" << std::endl;
+    }
+    // Cache the location for future use
+    m_uniformLocationCache[name] = location;
+    return location;
+}
+
+// Uniform setter functions
+void Shader::setBool(const std::string& name, bool value) {
+    glUniform1i(getUniformLocation(name), (int)value);
+}
+
+void Shader::setInt(const std::string& name, int value) {
+    glUniform1i(getUniformLocation(name), value);
+}
+
+void Shader::setFloat(const std::string& name, float value) {
+    glUniform1f(getUniformLocation(name), value);
+}
+
+void Shader::setVec2(const std::string& name, const glm::vec2& value) {
+    glUniform2fv(getUniformLocation(name), 1, &value[0]);
+}
+
+void Shader::setVec3(const std::string& name, const glm::vec3& value) {
+    glUniform3fv(getUniformLocation(name), 1, &value[0]);
+}
+
+void Shader::setVec4(const std::string& name, const glm::vec4& value) {
+    glUniform4fv(getUniformLocation(name), 1, &value[0]);
+}
+
+void Shader::setMat4(const std::string& name, const glm::mat4& mat) {
+    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, &mat[0][0]);
+}
