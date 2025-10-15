@@ -32,6 +32,7 @@ set(SOURCE_FILES
     src/Renderer.cpp
     src/Shader.cpp
     src/Input.cpp
+    src/Time.cpp
     libs/glad/src/glad.c
 )
 
