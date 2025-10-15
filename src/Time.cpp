@@ -72,6 +72,7 @@ void Time::end_frame() {
   // wait period.
   while (glfwGetTime() < target_frame_end_time) {
     // Busy-wait (spin) until the target time is reached.
+    // std::cout << "Spinning..." << std::endl;
   }
 }
 
