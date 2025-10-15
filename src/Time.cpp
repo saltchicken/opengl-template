@@ -20,6 +20,15 @@ void Time::begin_frame() {
 }
 
 void Time::end_frame() {
+  // NOTE: This can be removed if perfect accuracy detection is not needed
+  const double tolerance = 0.0001; // 0.1ms
+
+  // Check if the frame's work took too long, including the tolerance.
+  if (glfwGetTime() > m_frame_start_time + m_target_frame_time + tolerance) {
+    m_missed_frames_count++;
+  }
+  // End accuracy detection
+
   // The target time for when the current frame *should* end.
   const double target_frame_end_time = m_frame_start_time + m_target_frame_time;
 
@@ -46,13 +55,6 @@ void Time::end_frame() {
   while (glfwGetTime() < target_frame_end_time) {
     // Busy-wait (spin) until the target time is reached.
   }
-
-  // NOTE: This can be removed if perfect accuracy detection is not needed
-  const double tolerance = 0.0001; // 0.1ms
-  if (glfwGetTime() > target_frame_end_time + tolerance) {
-    m_missed_frames_count++;
-  }
-  // End accuracy detection
 }
 
 void Time::update_fps() {
