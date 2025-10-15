@@ -1,4 +1,5 @@
 #include "Window.h"
+#include "Input.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -36,6 +37,7 @@ bool Window::init(unsigned int width, unsigned int height, const char* title) {
         return false;
     }
     glfwMakeContextCurrent(m_window);
+    glfwSetKeyCallback(m_window, Input::key_callback);
     glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
     // 3. Initialize GLAD
@@ -49,11 +51,11 @@ bool Window::init(unsigned int width, unsigned int height, const char* title) {
 }
 
 bool Window::shouldClose() {
-    // Also check for escape key press
-    if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-        glfwSetWindowShouldClose(m_window, true);
-    }
-    return glfwWindowShouldClose(m_window);
+  return glfwWindowShouldClose(m_window);
+}
+
+void Window::setShouldClose(bool value) {
+    glfwSetWindowShouldClose(m_window, value);
 }
 
 void Window::swapBuffers() {

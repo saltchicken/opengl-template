@@ -13,6 +13,7 @@ public:
     
     // Checks if the window has been flagged to close.
     bool shouldClose();
+    void setShouldClose(bool value);
 
     // Swaps the front and back buffers.
     void swapBuffers();

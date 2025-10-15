@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "Window.h"
 #include "Renderer.h"
+#include "Input.h"
 #include <iostream>
 #include <string>
 #include <GLFW/glfw3.h> // Include for glfwGetTime()
@@ -25,6 +26,7 @@ void Application::run() {
 
     // 2. Main loop
     while (!m_window->shouldClose()) {
+        // TODO: Move FPS logic into a separate function
         float currentFrame = static_cast<float>(glfwGetTime());
         m_deltaTime = currentFrame - m_lastFrame;
         m_lastFrame = currentFrame;
@@ -40,6 +42,12 @@ void Application::run() {
             nbFrames = 0;
             lastTime += 1.0;
         }
+
+        // Input
+        if (Input::is_key_pressed(GLFW_KEY_ESCAPE)) {
+            m_window->setShouldClose(true);
+        }
+
         // Render
         m_renderer->draw();
         
