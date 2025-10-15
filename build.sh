@@ -12,7 +12,7 @@ mkdir "$BUILD_DIR"
 
 # Configure the project with CMake
 echo "--- Configuring with CMake ---"
-cmake -S . -B "$BUILD_DIR"
+cmake -S . -B "$BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 
 # Build the project
 echo "--- Building project ---"
