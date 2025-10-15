@@ -32,6 +32,8 @@ void Application::run() {
   while (!m_window->should_close()) {
     m_time->begin_frame();
 
+    m_window->poll_events();
+
     input->process_input(*m_window);
 
     // Render
@@ -39,7 +41,8 @@ void Application::run() {
 
     // Swap buffers and poll IO events
     m_window->swap_buffers();
-    m_window->poll_events();
+
+    input->update();
 
     m_time->end_frame();
   }
