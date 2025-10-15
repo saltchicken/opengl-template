@@ -1,13 +1,23 @@
 #pragma once
-
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+class Window;
+
 class Input {
 public:
+    Input(GLFWwindow* window);
+
+    void processInput(Window& window);
+
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
-    static bool is_key_pressed(int key);
+
+    bool is_key_pressed(int key);
 
 private:
-    static bool keys[1024];
+
+    void key_callback_impl(int key, int action);
+    
+    bool keys[1024] = { false };
+    GLFWwindow* m_window; // Keep a pointer to the window
 };

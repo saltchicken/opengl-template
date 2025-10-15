@@ -36,6 +36,11 @@ bool Window::init(unsigned int width, unsigned int height, const char* title) {
         glfwTerminate();
         return false;
     }
+
+    // Set the user pointer of the window to our input handler instance
+    m_input_handler = std::make_unique<Input>(m_window);
+    glfwSetWindowUserPointer(m_window, m_input_handler.get());
+
     glfwMakeContextCurrent(m_window);
 
     glfwSwapInterval(0); // Disable vsync
@@ -51,6 +56,10 @@ bool Window::init(unsigned int width, unsigned int height, const char* title) {
     
     std::cout << "Window and OpenGL context initialized successfully." << std::endl;
     return true;
+}
+
+Input* Window::getInput() {
+    return m_input_handler.get();
 }
 
 bool Window::shouldClose() {

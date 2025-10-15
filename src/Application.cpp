@@ -26,15 +26,13 @@ void Application::run() {
         return;
     }
 
+    Input* input = m_window->getInput();
+
     // 2. Main loop
     while (!m_window->shouldClose()) {
         m_time->beginFrame();
 
-
-        // Input
-        if (Input::is_key_pressed(GLFW_KEY_ESCAPE)) {
-            m_window->setShouldClose(true);
-        }
+        input->processInput(*m_window);
 
         // Render
         m_renderer->draw();

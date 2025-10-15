@@ -1,7 +1,9 @@
 #pragma once
+#include <memory>
 
 // Forward declare GLFWwindow to avoid including glfw3.h in the header
 struct GLFWwindow;
+class Input;
 
 class Window {
 public:
@@ -21,6 +23,11 @@ public:
     // Processes all pending events.
     void pollEvents();
 
+    // Getter to access the input handler from the Application class
+    Input* getInput();
+
 private:
     GLFWwindow* m_window = nullptr;
+    std::unique_ptr<Input> m_input_handler; // The window now owns the input handler
+    
 };
