@@ -37,6 +37,9 @@ bool Window::init(unsigned int width, unsigned int height, const char* title) {
         return false;
     }
     glfwMakeContextCurrent(m_window);
+
+    glfwSwapInterval(0); // Disable vsync
+
     glfwSetKeyCallback(m_window, Input::key_callback);
     glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
