@@ -29,4 +29,6 @@ private:
     // For FPS calculation
     double m_lastFPSTime = 0.0;
     int m_frameCount = 0;
+
+    int m_missedFramesCount = 0; // NOTE: Potentially to be removed if perfect accuracy detection is not needed
 };

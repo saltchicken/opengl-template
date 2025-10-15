@@ -44,6 +44,13 @@ void Time::endFrame() {
     while (glfwGetTime() < targetFrameEndTime) {
         // Busy-wait (spin) until the target time is reached.
     }
+
+    // NOTE: This can be removed if perfect accuracy detection is not needed
+    const double tolerance = 0.0001; // 0.1ms
+    if (glfwGetTime() > targetFrameEndTime + tolerance) {
+        m_missedFramesCount++;
+    }
+    // End accuracy detection
 }
 
 void Time::updateFPS() {
@@ -51,9 +58,19 @@ void Time::updateFPS() {
     // If one second has passed since the last FPS update
     if (m_frameStartTime - m_lastFPSTime >= 1.0) {
         std::cout << "FPS: " << m_frameCount << std::endl;
-
+        
+        // NOTE: This can be removed if perfect accuracy detection is not needed
+        if (m_missedFramesCount > 0) {
+            // Send to std::cerr as it's a warning/error condition.
+            std::cerr << "WARN: Failed to meet target FPS. Missed "
+                      << m_missedFramesCount << " of " << m_frameCount 
+                      << " frames in the last second." << std::endl;
+        }
+        // End accuracy detection
+      
         // Reset for the next second
         m_frameCount = 0;
+        m_missedFramesCount = 0; // NOTE: This can be removed if perfect accuracy detection is not needed
         m_lastFPSTime = m_frameStartTime;
     }
 }
