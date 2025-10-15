@@ -59,7 +59,7 @@ bool Window::init(unsigned int width, unsigned int height, const char *title) {
   return true;
 }
 
-Input *Window::getInput() { return m_input_handler.get(); }
+Input *Window::get_input() { return m_input_handler.get(); }
 
 bool Window::should_close() { return glfwWindowShouldClose(m_window); }
 

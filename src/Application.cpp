@@ -26,7 +26,7 @@ void Application::run() {
     return;
   }
 
-  Input *input = m_window->getInput();
+  Input *input = m_window->get_input();
 
   // 2. Main loop
   while (!m_window->should_close()) {

@@ -24,7 +24,7 @@ public:
   void poll_events();
 
   // Getter to access the input handler from the Application class
-  Input *getInput();
+  Input *get_input();
 
 private:
   GLFWwindow *m_window = nullptr;
