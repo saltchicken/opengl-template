@@ -36,6 +36,12 @@ void Application::run() {
 
     input->process_input(*m_window);
 
+    // TODO: This needs to run after process_input or else it causes a SIGSEGV
+    // (Address boundary error). Need a cleaner way to handle this.
+    if (m_window->should_close()) {
+      break;
+    }
+
     // Render
     m_renderer->draw();
 
