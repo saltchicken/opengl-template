@@ -1,6 +1,7 @@
 #include "Time.h"
 #include <GLFW/glfw3.h> // For glfwGetTime()
 #include <chrono>
+#include <iomanip> // For std::fixed and std::setprecision
 #include <iostream>
 #include <thread>
 
@@ -45,7 +46,24 @@ void Time::end_frame() {
     // to account for sleep inaccuracies and leave the rest for the busy-wait.
     auto sleep_duration =
         std::chrono::duration<double>(time_to_wait - busy_wait_threshold);
+
+    // NOTE: This can be removed if perfect accuracy detection is not needed
+    double time_before_sleep = glfwGetTime();
+    // End accuracy detection
+
     std::this_thread::sleep_for(sleep_duration);
+
+    // NOTE: This can be removed if perfect accuracy detection is not needed
+    double time_after_sleep = glfwGetTime();
+    double actual_sleep_duration = time_after_sleep - time_before_sleep;
+    double over_sleep_amount = actual_sleep_duration - sleep_duration.count();
+
+    if (over_sleep_amount > 0.001) {
+      std::cout << std::fixed << std::setprecision(4)
+                << "DIAGNOSTIC: sleep_for over-slept by "
+                << over_sleep_amount * 1000.0 << std::endl;
+    }
+    // End accuracy detection
   }
 
   // After the coarse sleep (or if we never slept at all),
