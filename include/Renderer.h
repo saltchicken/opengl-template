@@ -1,19 +1,18 @@
 #pragma once
+#include <memory>
+
+class Shader; // Forward declaration
 
 class Renderer {
 public:
     Renderer();
     ~Renderer();
 
-    // Creates shaders, buffers, and sets up vertex data.
     bool init();
-
-    // Clears the screen and draws the scene.
     void draw();
 
 private:
-    // OpenGL handles for our triangle
-    unsigned int m_shaderProgram = 0;
-    unsigned int m_vao = 0; // Vertex Array Object
-    unsigned int m_vbo = 0; // Vertex Buffer Object
+    std::unique_ptr<Shader> m_shader; // Manages the shader's lifetime
+    unsigned int m_vao = 0;
+    unsigned int m_vbo = 0;
 };
