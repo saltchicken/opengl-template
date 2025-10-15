@@ -5,75 +5,75 @@
 #include <thread>
 
 Time::Time(float targetFPS)
-    : m_targetFPS(targetFPS), m_targetFrameTime(1.0 / targetFPS) {
+    : m_target_fps(targetFPS), m_target_frame_time(1.0 / targetFPS) {
   // Initialize time points
-  m_lastFrameTime = glfwGetTime();
-  m_lastFPSTime = m_lastFrameTime;
+  m_last_frame_time = glfwGetTime();
+  m_last_fps_time = m_last_frame_time;
 }
 
-void Time::beginFrame() {
-  m_frameStartTime = glfwGetTime();
-  m_deltaTime = m_frameStartTime - m_lastFrameTime;
-  m_lastFrameTime = m_frameStartTime;
+void Time::begin_frame() {
+  m_frame_start_time = glfwGetTime();
+  m_delta_time = m_frame_start_time - m_last_frame_time;
+  m_last_frame_time = m_frame_start_time;
 
-  updateFPS();
+  update_fps();
 }
 
-void Time::endFrame() {
+void Time::end_frame() {
   // The target time for when the current frame *should* end.
-  const double targetFrameEndTime = m_frameStartTime + m_targetFrameTime;
+  const double target_frame_end_time = m_frame_start_time + m_target_frame_time;
 
   // A threshold for when to switch from sleeping to busy-waiting.
   // 2ms is a common value. Sleeping for less than this can be inaccurate.
-  const double busyWaitThreshold = 0.002; // 2 milliseconds
+  const double busy_wait_threshold = 0.002; // 2 milliseconds
 
   // Calculate how much time we have left in the current frame.
-  double timeToWait = targetFrameEndTime - glfwGetTime();
+  double time_to_wait = target_frame_end_time - glfwGetTime();
 
   // If we have more time left than our threshold, we can afford to sleep.
-  if (timeToWait > busyWaitThreshold) {
+  if (time_to_wait > busy_wait_threshold) {
     // We sleep for a duration that is slightly less than what we need,
     // to account for sleep inaccuracies and leave the rest for the busy-wait.
-    auto sleepDuration =
-        std::chrono::duration<double>(timeToWait - busyWaitThreshold);
-    std::this_thread::sleep_for(sleepDuration);
+    auto sleep_duration =
+        std::chrono::duration<double>(time_to_wait - busy_wait_threshold);
+    std::this_thread::sleep_for(sleep_duration);
   }
 
   // After the coarse sleep (or if we never slept at all),
   // we enter a tight loop to wait for the exact moment our frame should end.
   // This provides high-precision timing without burning the CPU for the entire
   // wait period.
-  while (glfwGetTime() < targetFrameEndTime) {
+  while (glfwGetTime() < target_frame_end_time) {
     // Busy-wait (spin) until the target time is reached.
   }
 
   // NOTE: This can be removed if perfect accuracy detection is not needed
   const double tolerance = 0.0001; // 0.1ms
-  if (glfwGetTime() > targetFrameEndTime + tolerance) {
-    m_missedFramesCount++;
+  if (glfwGetTime() > target_frame_end_time + tolerance) {
+    m_missed_frames_count++;
   }
   // End accuracy detection
 }
 
-void Time::updateFPS() {
-  m_frameCount++;
+void Time::update_fps() {
+  m_frame_count++;
   // If one second has passed since the last FPS update
-  if (m_frameStartTime - m_lastFPSTime >= 1.0) {
-    std::cout << "FPS: " << m_frameCount << std::endl;
+  if (m_frame_start_time - m_last_fps_time >= 1.0) {
+    std::cout << "FPS: " << m_frame_count << std::endl;
 
     // NOTE: This can be removed if perfect accuracy detection is not needed
-    if (m_missedFramesCount > 0) {
+    if (m_missed_frames_count > 0) {
       // Send to std::cerr as it's a warning/error condition.
       std::cerr << "WARN: Failed to meet target FPS. Missed "
-                << m_missedFramesCount << " of " << m_frameCount
+                << m_missed_frames_count << " of " << m_frame_count
                 << " frames in the last second." << std::endl;
     }
     // End accuracy detection
 
     // Reset for the next second
-    m_frameCount = 0;
-    m_missedFramesCount = 0; // NOTE: This can be removed if perfect accuracy
-                             // detection is not needed
-    m_lastFPSTime = m_frameStartTime;
+    m_frame_count = 0;
+    m_missed_frames_count = 0; // NOTE: This can be removed if perfect accuracy
+                               // detection is not needed
+    m_last_fps_time = m_frame_start_time;
   }
 }

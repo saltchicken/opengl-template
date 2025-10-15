@@ -30,9 +30,9 @@ void Application::run() {
 
   // 2. Main loop
   while (!m_window->should_close()) {
-    m_time->beginFrame();
+    m_time->begin_frame();
 
-    input->processInput(*m_window);
+    input->process_input(*m_window);
 
     // Render
     m_renderer->draw();
@@ -41,6 +41,6 @@ void Application::run() {
     m_window->swap_buffers();
     m_window->poll_events();
 
-    m_time->endFrame();
+    m_time->end_frame();
   }
 }
