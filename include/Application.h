@@ -8,14 +8,14 @@ class Time;
 
 class Application {
 public:
-    Application();
-    ~Application();
+  Application();
+  ~Application();
 
-    // Initializes all components and starts the main render loop.
-    void run();
+  // Initializes all components and starts the main render loop.
+  void run();
 
 private:
-    std::unique_ptr<Window> m_window;
-    std::unique_ptr<Renderer> m_renderer;
-    std::unique_ptr<Time> m_time;
+  std::unique_ptr<Window> m_window;
+  std::unique_ptr<Renderer> m_renderer;
+  std::unique_ptr<Time> m_time;
 };
