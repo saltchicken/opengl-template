@@ -14,9 +14,6 @@ void Input::process_input(Window &window) {
   if (is_key_down(GLFW_KEY_ESCAPE)) {
     window.set_should_close(true);
   }
-  if (is_key_released(GLFW_KEY_SPACE)) {
-    std::cout << "Spacebar released!" << std::endl;
-  }
   // Add other input handling here
 }
 
