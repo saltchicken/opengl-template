@@ -51,5 +51,18 @@ target_link_libraries(OpenGLTemplate PRIVATE
     glm
 )
 
+# function(copy_directory_to_target_dir target directory)
+#     get_target_property(target_dir ${target} BINARY_DIR)
+#     add_custom_command(
+#         TARGET ${target} POST_BUILD
+#         COMMAND ${CMAKE_COMMAND} -E copy_directory
+#                 "${CMAKE_CURRENT_SOURCE_DIR}/${directory}"
+#                 "${target_dir}/${directory}"
+#         COMMENT "Copying ${directory} to build directory"
+#     )
+# endfunction()
+#
+# copy_directory_to_target_dir(OpenGLTemplate shaders)
+
 # Print a message upon configuration
 message(STATUS "Project configured. Build with 'cmake --build build'")

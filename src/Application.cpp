@@ -2,6 +2,8 @@
 #include "Window.h"
 #include "Renderer.h"
 #include <iostream>
+#include <string>
+#include <GLFW/glfw3.h> // Include for glfwGetTime()
 
 Application::Application() {
     m_window = std::make_unique<Window>();
@@ -23,6 +25,21 @@ void Application::run() {
 
     // 2. Main loop
     while (!m_window->shouldClose()) {
+        float currentFrame = static_cast<float>(glfwGetTime());
+        m_deltaTime = currentFrame - m_lastFrame;
+        m_lastFrame = currentFrame;
+
+        // --- FPS Counter (optional, but useful) ---
+        // Display FPS in the window title every second
+        static double lastTime = glfwGetTime();
+        static int nbFrames = 0;
+        nbFrames++;
+        if (currentFrame - lastTime >= 1.0) {
+            // TODO: Better way to display FPS or remove this when FPS limitting is implemented
+            std::cout << "FPS: " << nbFrames << std::endl;
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
         // Render
         m_renderer->draw();
         

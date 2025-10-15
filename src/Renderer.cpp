@@ -1,5 +1,5 @@
 #include "Renderer.h"
-#include "Shader.h" // Include the new header
+#include "Shader.h"
 #include <glad/glad.h>
 #include <iostream>
 
