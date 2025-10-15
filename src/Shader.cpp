@@ -6,14 +6,14 @@
 
 namespace {
 // Helper function to load a shader's source code from a file
-std::string loadShaderSource(const std::string &filepath) {
-  std::ifstream shaderFile;
-  shaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+std::string load_shader_source(const std::string &filepath) {
+  std::ifstream shader_file;
+  shader_file.exceptions(std::ifstream::failbit | std::ifstream::badbit);
   try {
-    shaderFile.open(filepath);
+    shader_file.open(filepath);
     std::stringstream buffer;
-    buffer << shaderFile.rdbuf();
-    shaderFile.close();
+    buffer << shader_file.rdbuf();
+    shader_file.close();
     return buffer.str();
   } catch (std::ifstream::failure &e) {
     std::cerr << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << filepath
@@ -23,24 +23,25 @@ std::string loadShaderSource(const std::string &filepath) {
 }
 } // namespace
 
-Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
-  std::string vertexCode = loadShaderSource(vertexPath);
-  std::string fragmentCode = loadShaderSource(fragmentPath);
-  const char *vShaderCode = vertexCode.c_str();
-  const char *fShaderCode = fragmentCode.c_str();
+Shader::Shader(const std::string &vertex_path,
+               const std::string &fragment_path) {
+  std::string vertex_code = load_shader_source(vertex_path);
+  std::string fragment_code = load_shader_source(fragment_path);
+  const char *v_shader_code = vertex_code.c_str();
+  const char *f_shader_code = fragment_code.c_str();
 
   // 2. compile shaders
   unsigned int vertex, fragment;
 
   // vertex shader
   vertex = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertex, 1, &vShaderCode, NULL);
+  glShaderSource(vertex, 1, &v_shader_code, NULL);
   glCompileShader(vertex);
   check_compile_errors(vertex, "VERTEX");
 
   // fragment Shader
   fragment = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragment, 1, &fShaderCode, NULL);
+  glShaderSource(fragment, 1, &f_shader_code, NULL);
   glCompileShader(fragment);
   check_compile_errors(fragment, "FRAGMENT");
 
