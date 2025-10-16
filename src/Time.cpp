@@ -5,17 +5,27 @@
 #include <iostream>
 #include <thread>
 
-Time::Time(float targetFPS)
-    : m_target_fps(targetFPS), m_target_frame_time(1.0 / targetFPS) {
+float Time::s_target_fps = 60.0f;
+double Time::s_target_frame_time = 1.0 / 60.0;
+double Time::s_frame_start_time = 0.0;
+double Time::s_last_frame_time = 0.0;
+double Time::s_delta_time = 0.0;
+double Time::s_last_fps_time = 0.0;
+int Time::s_frame_count = 0;
+int Time::s_missed_frames_count = 0;
+
+void Time::init(float target_fps) {
+  s_target_fps = target_fps;
+  s_target_frame_time = 1.0 / target_fps;
   // Initialize time points
-  m_last_frame_time = glfwGetTime();
-  m_last_fps_time = m_last_frame_time;
+  s_last_frame_time = glfwGetTime();
+  s_last_fps_time = s_last_frame_time;
 }
 
 void Time::begin_frame() {
-  m_frame_start_time = glfwGetTime();
-  m_delta_time = m_frame_start_time - m_last_frame_time;
-  m_last_frame_time = m_frame_start_time;
+  s_frame_start_time = glfwGetTime();
+  s_delta_time = s_frame_start_time - s_last_frame_time;
+  s_last_frame_time = s_frame_start_time;
 
   update_fps();
 }
@@ -25,13 +35,13 @@ void Time::end_frame() {
   const double tolerance = 0.0001; // 0.1ms
 
   // Check if the frame's work took too long, including the tolerance.
-  if (glfwGetTime() > m_frame_start_time + m_target_frame_time + tolerance) {
-    m_missed_frames_count++;
+  if (glfwGetTime() > s_frame_start_time + s_target_frame_time + tolerance) {
+    s_missed_frames_count++;
   }
   // End accuracy detection
 
   // The target time for when the current frame *should* end.
-  const double target_frame_end_time = m_frame_start_time + m_target_frame_time;
+  const double target_frame_end_time = s_frame_start_time + s_target_frame_time;
 
   // A threshold for when to switch from sleeping to busy-waiting.
   // 2ms is a common value. Sleeping for less than this can be inaccurate.
@@ -77,24 +87,24 @@ void Time::end_frame() {
 }
 
 void Time::update_fps() {
-  m_frame_count++;
+  s_frame_count++;
   // If one second has passed since the last FPS update
-  if (m_frame_start_time - m_last_fps_time >= 1.0) {
-    std::cout << "FPS: " << m_frame_count << std::endl;
+  if (s_frame_start_time - s_last_fps_time >= 1.0) {
+    std::cout << "FPS: " << s_frame_count << std::endl;
 
     // NOTE: This can be removed if perfect accuracy detection is not needed
-    if (m_missed_frames_count > 0) {
+    if (s_missed_frames_count > 0) {
       // Send to std::cerr as it's a warning/error condition.
       std::cerr << "WARN: Failed to meet target FPS. Missed "
-                << m_missed_frames_count << " of " << m_frame_count
+                << s_missed_frames_count << " of " << s_frame_count
                 << " frames in the last second." << std::endl;
     }
     // End accuracy detection
 
     // Reset for the next second
-    m_frame_count = 0;
-    m_missed_frames_count = 0; // NOTE: This can be removed if perfect accuracy
+    s_frame_count = 0;
+    s_missed_frames_count = 0; // NOTE: This can be removed if perfect accuracy
                                // detection is not needed
-    m_last_fps_time = m_frame_start_time;
+    s_last_fps_time = s_frame_start_time;
   }
 }

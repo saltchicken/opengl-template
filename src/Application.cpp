@@ -9,8 +9,7 @@
 Application::Application() {
   m_window = std::make_unique<Window>();
   m_renderer = std::make_unique<Renderer>();
-  m_time = std::make_unique<Time>(
-      60.0f); // TODO: Better way to determine and set target FPS
+  Time::init(60.0f); // TODO: Better way to determine and set target FPS
 }
 
 Application::~Application() = default;
@@ -30,7 +29,7 @@ void Application::run() {
 
   // 2. Main loop
   while (!m_window->should_close()) {
-    m_time->begin_frame();
+    Time::begin_frame();
 
     m_window->poll_events();
     if (!input->process_input(*m_window)) {
@@ -41,6 +40,6 @@ void Application::run() {
     m_renderer->draw();
     m_window->swap_buffers();
     input->update();
-    m_time->end_frame();
+    Time::end_frame();
   }
 }
