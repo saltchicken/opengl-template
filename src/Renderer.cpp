@@ -4,12 +4,7 @@
 #include <iostream>
 
 Renderer::Renderer() = default;
-Renderer::~Renderer() {
-  glDeleteVertexArrays(1, &m_vao);
-  glDeleteBuffers(1, &m_vbo);
-  // m_shader is cleaned up automatically by unique_ptr
-  std::cout << "Renderer resources cleaned up." << std::endl;
-}
+Renderer::~Renderer() = default;
 
 bool Renderer::init() {
   // 1. Create the shader program using our Shader class
@@ -21,18 +16,23 @@ bool Renderer::init() {
     return false;
   }
 
-  // 2. Set up vertex data (this part is unchanged)
-  float vertices[] = {-0.5f, -0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f, 0.5f, 0.0f};
+  std::vector<Vertex> vertices = {
+      // positions          // normals          // texture coords
+      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // top right
+      {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // bottom right
+      {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
+      {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // top left
+  };
 
-  glGenVertexArrays(1, &m_vao);
-  glGenBuffers(1, &m_vbo);
-  glBindVertexArray(m_vao);
-  glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER, 0);
-  glBindVertexArray(0);
+  std::vector<unsigned int> indices = {
+      0, 1, 3, // first triangle
+      1, 2, 3  // second triangle
+  };
+
+  std::vector<Texture> textures; // Empty for now
+
+  // 3. Create a Mesh object and add it to our list of meshes
+  m_meshes.emplace_back(vertices, indices, textures);
 
   std::cout << "Renderer initialized successfully." << std::endl;
   return true;
@@ -48,6 +48,8 @@ void Renderer::draw() {
 
   // Use the shader and draw the triangle
   m_shader->use();
-  glBindVertexArray(m_vao);
-  glDrawArrays(GL_TRIANGLES, 0, 3);
+
+  for (auto &mesh : m_meshes) {
+    mesh.draw(*m_shader);
+  }
 }

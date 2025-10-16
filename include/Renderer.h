@@ -1,5 +1,7 @@
 #pragma once
+#include "Mesh.h"
 #include <memory>
+#include <vector>
 
 class Shader; // Forward declaration
 
@@ -14,6 +16,5 @@ public:
 
 private:
   std::unique_ptr<Shader> m_shader; // Manages the shader's lifetime
-  unsigned int m_vao = 0;
-  unsigned int m_vbo = 0;
+  std::vector<Mesh> m_meshes;
 };
