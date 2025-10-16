@@ -23,10 +23,16 @@ bool Input::process_input(Window &window) {
 // Static callback that GLFW uses
 void Input::key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
-  // Retrieve the Input instance from the window's user pointer
-  Input *input_handler = static_cast<Input *>(glfwGetWindowUserPointer(window));
-  if (input_handler) {
-    input_handler->key_callback_impl(key, action);
+  // 1. Retrieve the Window instance from the user pointer
+  Window *window_instance =
+      static_cast<Window *>(glfwGetWindowUserPointer(window));
+
+  // 2. Get the Input handler from the Window instance
+  if (window_instance) {
+    Input *input_handler = window_instance->get_input();
+    if (input_handler) {
+      input_handler->key_callback_impl(key, action);
+    }
   }
 }
 

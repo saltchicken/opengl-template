@@ -39,7 +39,7 @@ bool Window::init(unsigned int width, unsigned int height, const char *title,
 
   // Set the user pointer of the window to our input handler instance
   m_input_handler = std::make_unique<Input>(m_window);
-  glfwSetWindowUserPointer(m_window, m_input_handler.get());
+  glfwSetWindowUserPointer(m_window, this);
 
   glfwMakeContextCurrent(m_window);
 
@@ -73,12 +73,21 @@ void Window::swap_buffers() { glfwSwapBuffers(m_window); }
 
 void Window::poll_events() { glfwPollEvents(); }
 
+// This static function acts as a bridge
 void Window::framebuffer_size_callback(GLFWwindow *window, int width,
                                        int height) {
+  // Retrieve the Window instance that owns this GLFWwindow
+  Window *window_instance =
+      static_cast<Window *>(glfwGetWindowUserPointer(window));
+  if (window_instance) {
+    // Call the instance-specific resize handler
+    window_instance->on_resize(width, height);
+  }
+}
+
+// This new member function contains the actual logic
+void Window::on_resize(int width, int height) {
+  m_width = width;
+  m_height = height;
   glViewport(0, 0, width, height);
-  // We need to update our window's size fields, but we can't access
-  // 'this' directly. One way is to get the app/window instance from the user
-  // pointer if we had set it to the Window instance. For now, we'll just
-  // handle the viewport. For a more robust solution, you'd retrieve your
-  // Window instance from the user pointer and update its members.
 }

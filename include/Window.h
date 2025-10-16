@@ -32,6 +32,9 @@ public:
 private:
   static void framebuffer_size_callback(GLFWwindow *window, int width,
                                         int height);
+
+  void on_resize(int width, int height);
+
   GLFWwindow *m_window = nullptr;
   std::unique_ptr<Input>
       m_input_handler; // The window now owns the input handler
