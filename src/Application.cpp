@@ -28,7 +28,7 @@ void Application::run() {
   Time::init(config.fps);
   // 1. Initialize window and renderer
   if (!m_window->init(config.window_width, config.window_height,
-                      config.window_title.c_str())) {
+                      config.window_title.c_str(), config.window_resizable)) {
     std::cerr << "Failed to initialize window!" << std::endl;
     return;
   }

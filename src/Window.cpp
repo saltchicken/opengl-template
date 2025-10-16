@@ -14,7 +14,8 @@ Window::~Window() {
   std::cout << "Window destroyed and GLFW terminated." << std::endl;
 }
 
-bool Window::init(unsigned int width, unsigned int height, const char *title) {
+bool Window::init(unsigned int width, unsigned int height, const char *title,
+                  bool resizable) {
   m_width = width;
   m_height = height;
   // 1. Initialize GLFW
@@ -25,6 +26,8 @@ bool Window::init(unsigned int width, unsigned int height, const char *title) {
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
 
   // 2. Create Window
   m_window = glfwCreateWindow(width, height, title, NULL, NULL);

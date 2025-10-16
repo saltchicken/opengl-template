@@ -6,6 +6,7 @@
 struct Config {
   unsigned int window_width = 800;
   unsigned int window_height = 600;
+  bool window_resizable = true;
   float fps = 60.0f;
   std::string window_title = "OpenGL Application";
 };

@@ -11,7 +11,8 @@ public:
   ~Window();
 
   // Initializes GLFW, creates a window, and initializes GLAD.
-  bool init(unsigned int width, unsigned int height, const char *title);
+  bool init(unsigned int width, unsigned int height, const char *title,
+            bool resizable);
 
   // Checks if the window has been flagged to close.
   bool should_close();

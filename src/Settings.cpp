@@ -15,6 +15,8 @@ bool Settings::load(const std::string &filepath) {
         tbl["window"]["height"].value_or(m_config.window_height);
     m_config.window_title =
         tbl["window"]["title"].value_or(m_config.window_title);
+    m_config.window_resizable =
+        tbl["window"]["resizable"].value_or(m_config.window_resizable);
     m_config.fps = tbl["performance"]["fps"].value_or(m_config.fps);
 
     std::cout << "Settings loaded successfully from " << filepath << std::endl;
