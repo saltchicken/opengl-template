@@ -54,6 +54,8 @@ void Application::run() {
     Time::begin_frame();
 
     m_window->poll_events();
+
+    // NOTE: This is required to prevent SIGSEGV (Address boundary error)
     if (!input->process_input(*m_window)) {
       break;
     }
