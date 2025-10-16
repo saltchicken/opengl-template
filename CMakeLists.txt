@@ -69,5 +69,9 @@ endfunction()
 # Copy the shaders directory after building the executable
 copy_directory_to_target_dir(OpenGLTemplate shaders)
 
+# install(TARGETS OpenGLTemplate DESTINATION bin)
+# install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/shaders/" DESTINATION bin/shaders)
+
 # Print a message upon configuration
 message(STATUS "Project configured. Build with 'cmake --build build'")
+
