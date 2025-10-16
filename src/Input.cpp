@@ -1,7 +1,6 @@
 #include "Input.h"
 #include "Window.h"
 #include <cstring>
-#include <iostream> // For example usage
 
 Input::Input(GLFWwindow *window) : m_window(window) {}
 
@@ -10,11 +9,15 @@ void Input::update() {
          sizeof(m_current_key_states));
 }
 
-void Input::process_input(Window &window) {
+bool Input::process_input(Window &window) {
+  if (window.should_close()) {
+    return false;
+  }
   if (is_key_down(GLFW_KEY_ESCAPE)) {
-    window.set_should_close(true);
+    return false;
   }
   // Add other input handling here
+  return true;
 }
 
 // Static callback that GLFW uses

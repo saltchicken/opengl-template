@@ -33,23 +33,14 @@ void Application::run() {
     m_time->begin_frame();
 
     m_window->poll_events();
-
-    input->process_input(*m_window);
-
-    // TODO: This needs to run after process_input or else it causes a SIGSEGV
-    // (Address boundary error). Need a cleaner way to handle this.
-    if (m_window->should_close()) {
+    if (!input->process_input(*m_window)) {
       break;
     }
 
     // Render
     m_renderer->draw();
-
-    // Swap buffers and poll IO events
     m_window->swap_buffers();
-
     input->update();
-
     m_time->end_frame();
   }
 }
