@@ -34,6 +34,7 @@ set(SOURCE_FILES
     src/Input.cpp
     src/Time.cpp
     src/Mesh.cpp
+    src/Camera.cpp
     libs/glad/src/glad.c
 )
 

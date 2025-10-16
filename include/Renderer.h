@@ -4,6 +4,7 @@
 #include <vector>
 
 class Shader; // Forward declaration
+class Camera;
 
 class Renderer {
 public:
@@ -12,7 +13,8 @@ public:
 
   bool init();
   void update(float delta_time);
-  void draw();
+  void draw(Camera &camera, unsigned int screen_width,
+            unsigned int screen_height);
 
 private:
   std::unique_ptr<Shader> m_shader; // Manages the shader's lifetime

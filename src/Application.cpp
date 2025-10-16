@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Camera.h"
 #include "Input.h"
 #include "Renderer.h"
 #include "Time.h"
@@ -9,6 +10,8 @@
 Application::Application() {
   m_window = std::make_unique<Window>();
   m_renderer = std::make_unique<Renderer>();
+  // Initialize camera looking at the origin from 3 units away
+  m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 1.0f));
   Time::init(60.0f); // TODO: Better way to determine and set target FPS
 }
 
@@ -38,7 +41,7 @@ void Application::run() {
 
     // Render
     m_renderer->update(Time::get_delta_time());
-    m_renderer->draw();
+    m_renderer->draw(*m_camera, m_window->get_width(), m_window->get_height());
     m_window->swap_buffers();
     input->update();
     Time::end_frame();

@@ -4,6 +4,7 @@
 // Forward declarations
 class Window;
 class Renderer;
+class Camera;
 
 class Application {
 public:
@@ -16,4 +17,5 @@ public:
 private:
   std::unique_ptr<Window> m_window;
   std::unique_ptr<Renderer> m_renderer;
+  std::unique_ptr<Camera> m_camera;
 };

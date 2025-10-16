@@ -25,9 +25,16 @@ public:
 
   // Getter to access the input handler from the Application class
   Input *get_input();
+  unsigned int get_width() const { return m_width; }
+  unsigned int get_height() const { return m_height; }
 
 private:
+  static void framebuffer_size_callback(GLFWwindow *window, int width,
+                                        int height);
   GLFWwindow *m_window = nullptr;
   std::unique_ptr<Input>
       m_input_handler; // The window now owns the input handler
+  //
+  unsigned int m_width = 0;
+  unsigned int m_height = 0;
 };
