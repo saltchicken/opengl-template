@@ -1,10 +1,12 @@
 #include "Application.h"
 #include "Camera.h"
 #include "Input.h"
+#include "PrimitiveFactory.h"
 #include "Renderer.h"
 #include "SceneObject.h"
 #include "Time.h"
 #include "Window.h"
+
 #include <GLFW/glfw3.h>
 #include <iostream>
 
@@ -29,15 +31,8 @@ void Application::run() {
     return;
   }
 
-  std::vector<Vertex> vertices = {
-      {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
-      {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // bottom right
-      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // top right
-      {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // top left
-  };
-  std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
-  auto quad_mesh =
-      std::make_shared<Mesh>(vertices, indices, std::vector<Texture>());
+  // Create a quad mesh
+  auto quad_mesh = PrimitiveFactory::create_quad();
 
   // 2. Create a scene object using the mesh.
   auto my_object = std::make_shared<SceneObject>(quad_mesh);
