@@ -4,6 +4,7 @@
 #include "PrimitiveFactory.h"
 #include "Renderer.h"
 #include "SceneObject.h"
+#include "Settings.h"
 #include "Time.h"
 #include "Window.h"
 
@@ -12,17 +13,22 @@
 
 Application::Application() {
   m_window = std::make_unique<Window>();
+  m_settings = std::make_unique<Settings>();
   m_renderer = std::make_unique<Renderer>();
   // Initialize camera looking at the origin from 3 units away
   m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 1.0f));
-  Time::init(60.0f); // TODO: Better way to determine and set target FPS
 }
 
 Application::~Application() = default;
 
 void Application::run() {
+  m_settings->load("settings.toml");
+  const auto &config = m_settings->get_config();
+
+  Time::init(config.fps);
   // 1. Initialize window and renderer
-  if (!m_window->init(800, 600, "OpenGL Application")) {
+  if (!m_window->init(config.window_width, config.window_height,
+                      config.window_title.c_str())) {
     std::cerr << "Failed to initialize window!" << std::endl;
     return;
   }

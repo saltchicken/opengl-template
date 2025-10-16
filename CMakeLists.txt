@@ -15,6 +15,11 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/g-truc/glm.git
     GIT_TAG        1.0.2
 )
+FetchContent_Declare(
+  tomplusplus
+  GIT_REPOSITORY https://github.com/marzer/tomlplusplus.git
+  GIT_TAG          v3.4.0
+)
 FetchContent_MakeAvailable(glm)
 
 set_property(DIRECTORY ${glm_SOURCE_DIR} PROPERTY SYSTEM TRUE)
@@ -30,6 +35,7 @@ set(SOURCE_FILES
     src/Application.cpp
     src/Window.cpp
     src/Renderer.cpp
+    src/Settings.cpp
     src/Shader.cpp
     src/Input.cpp
     src/Time.cpp
@@ -53,6 +59,7 @@ target_include_directories(OpenGLTemplate PRIVATE
 target_link_libraries(OpenGLTemplate PRIVATE
     ${OPENGL_LIBRARIES}
     glfw
+    tomlplusplus
     glm
 )
 
@@ -69,6 +76,14 @@ endfunction()
 
 # Copy the shaders directory after building the executable
 copy_directory_to_target_dir(OpenGLTemplate shaders)
+
+add_custom_command(
+    TARGET OpenGLTemplate POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_CURRENT_SOURCE_DIR}/settings.toml"
+        "$<TARGET_FILE_DIR:OpenGLTemplate>/settings.toml"
+    COMMENT "Copying settings.toml to build directory"
+)
 
 # install(TARGETS OpenGLTemplate DESTINATION bin)
 # install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/shaders/" DESTINATION bin/shaders)
