@@ -39,7 +39,7 @@ bool Renderer::init() {
 }
 
 void Renderer::update(float delta_time) {
-  std::cout << delta_time << std::endl;
+  // std::cout << delta_time << std::endl;
 }
 
 void Renderer::draw() {
