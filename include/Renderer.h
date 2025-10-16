@@ -9,6 +9,7 @@ public:
   ~Renderer();
 
   bool init();
+  void update(float delta_time);
   void draw();
 
 private:

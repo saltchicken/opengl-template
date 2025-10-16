@@ -38,6 +38,10 @@ bool Renderer::init() {
   return true;
 }
 
+void Renderer::update(float delta_time) {
+  std::cout << delta_time << std::endl;
+}
+
 void Renderer::draw() {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT);

@@ -37,6 +37,7 @@ void Application::run() {
     }
 
     // Render
+    m_renderer->update(Time::get_delta_time());
     m_renderer->draw();
     m_window->swap_buffers();
     input->update();
