@@ -19,30 +19,16 @@ bool Renderer::init() {
     return false;
   }
 
-  std::vector<Vertex> vertices = {
-      // positions          // normals          // texture coords
-      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // top right
-      {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // bottom right
-      {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
-      {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // top left
-  };
-
-  std::vector<unsigned int> indices = {
-      0, 1, 3, // first triangle
-      1, 2, 3  // second triangle
-  };
-
-  std::vector<Texture> textures; // Empty for now
-
-  // 3. Create a Mesh object and add it to our list of meshes
-  m_meshes.emplace_back(vertices, indices, textures);
-
   std::cout << "Renderer initialized successfully." << std::endl;
   return true;
 }
 
 void Renderer::update(float delta_time) {
   // std::cout << delta_time << std::endl;
+}
+
+void Renderer::submit(const std::shared_ptr<SceneObject> object) {
+  m_scene_objects.push_back(object);
 }
 
 void Renderer::draw(Camera &camera, unsigned int screen_width,
@@ -53,18 +39,16 @@ void Renderer::draw(Camera &camera, unsigned int screen_width,
   // Use the shader and draw the triangle
   m_shader->use();
 
-  glm::mat4 model = glm::mat4(1.0f);
   glm::mat4 view = camera.GetViewMatrix();
-
   glm::mat4 projection =
       glm::perspective(glm::radians(camera.Fov),
                        (float)screen_width / screen_height, 0.1f, 100.0f);
 
-  m_shader->set_mat4("model", model);
   m_shader->set_mat4("projection", projection);
   m_shader->set_mat4("view", view);
 
-  for (auto &mesh : m_meshes) {
-    mesh.draw(*m_shader);
+  for (const auto &object : m_scene_objects) {
+    m_shader->set_mat4("model", object->transform);
+    object->mesh->draw(*m_shader);
   }
 }

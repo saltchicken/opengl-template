@@ -2,6 +2,7 @@
 #include "Camera.h"
 #include "Input.h"
 #include "Renderer.h"
+#include "SceneObject.h"
 #include "Time.h"
 #include "Window.h"
 #include <GLFW/glfw3.h>
@@ -28,9 +29,27 @@ void Application::run() {
     return;
   }
 
-  Input *input = m_window->get_input();
+  std::vector<Vertex> vertices = {
+      {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
+      {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // bottom right
+      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // top right
+      {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // top left
+  };
+  std::vector<unsigned int> indices = {0, 1, 2, 2, 3, 0};
+  auto quad_mesh =
+      std::make_shared<Mesh>(vertices, indices, std::vector<Texture>());
 
-  // 2. Main loop
+  // 2. Create a scene object using the mesh.
+  auto my_object = std::make_shared<SceneObject>(quad_mesh);
+  // You can set its position, rotation, or scale here if you want.
+  // For example, to move it right:
+  // my_object->transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,
+  // 0.0f, 0.0f));
+
+  // 3. Submit the object to the renderer.
+  m_renderer->submit(my_object);
+
+  Input *input = m_window->get_input();
   while (!m_window->should_close()) {
     Time::begin_frame();
 
