@@ -55,12 +55,10 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
   }
 
   // 2. Get the required components from the camera object
-  // (A GetComponent<T> helper on SceneObject would make this cleaner)
-  CameraComponent *camera_comp = nullptr;
-  for (const auto &comp : camera_object->m_components) {
-    camera_comp = std::dynamic_pointer_cast<CameraComponent>(comp).get();
-    if (camera_comp)
-      break;
+  auto camera_comp = camera_object->get_component<CameraComponent>();
+  if (!camera_comp) {
+    Log::error("Active camera object is missing its CameraComponent.");
+    return;
   }
 
   if (!camera_comp) {

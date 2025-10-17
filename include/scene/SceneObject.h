@@ -26,4 +26,17 @@ struct SceneObject {
     m_components.push_back(new_comp);
     return new_comp;
   }
+
+  // Finds and returns the first component of the specified type.
+  template <typename T> std::shared_ptr<T> get_component() {
+    for (const auto &comp : m_components) {
+      // Attempt to cast the component to the desired type T
+      if (auto casted_comp = std::dynamic_pointer_cast<T>(comp)) {
+        // If the cast is successful, return the component
+        return casted_comp;
+      }
+    }
+    // If no component of type T is found, return nullptr
+    return nullptr;
+  }
 };

@@ -1,5 +1,6 @@
 #include "scene/Scene.h"
 #include "scene/CameraComponent.h"
+#include "utils/Log.h"
 
 Scene::Scene() {}
 
@@ -21,19 +22,11 @@ Scene::get_scene_objects() const {
 }
 
 void Scene::set_active_camera(std::shared_ptr<SceneObject> camera_object) {
-  // It's good practice to ensure the object actually has a camera component
-  if (camera_object) { // You could add a GetComponent<T> method for a cleaner
-                       // check
-    bool has_camera_comp = false;
-    for (const auto &comp : camera_object->m_components) {
-      if (std::dynamic_pointer_cast<CameraComponent>(comp)) {
-        has_camera_comp = true;
-        break;
-      }
-    }
-    if (has_camera_comp) {
-      m_active_camera = camera_object;
-    }
+  if (camera_object && camera_object->get_component<CameraComponent>()) {
+    m_active_camera = camera_object;
+  } else {
+    Log::warn("Attempted to set an active camera on an object that doesn't "
+              "have a CameraComponent.");
   }
 }
 
