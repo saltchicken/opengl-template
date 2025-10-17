@@ -22,7 +22,7 @@ public:
 private:
   void key_callback_impl(int key, int action);
 
-  bool m_current_key_states[1024] = {false};
-  bool m_previous_key_states[1024] = {false};
+  bool m_current_key_states[GLFW_KEY_LAST + 1] = {false};
+  bool m_previous_key_states[GLFW_KEY_LAST + 1] = {false};
   GLFWwindow *m_window; // Keep a pointer to the window
 };
