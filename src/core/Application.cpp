@@ -4,7 +4,7 @@
 #include "core/Time.h"
 #include "core/Window.h"
 #include "graphics/Renderer.h"
-#include "scene/Camera.h"
+#include "scene/Scene.h"
 #include "scene/SceneObject.h"
 #include "utils/ResourceManager.h"
 
@@ -16,7 +16,7 @@ Application::Application() {
   m_settings = std::make_unique<Settings>();
   m_renderer = std::make_unique<Renderer>();
   // Initialize camera looking at the origin from 3 units away
-  m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 1.0f));
+  m_active_scene = std::make_unique<Scene>();
 }
 
 Application::~Application() { ResourceManager::clear(); };
@@ -53,7 +53,7 @@ void Application::run() {
   // 0.0f, 0.0f));
 
   // 3. Submit the object to the renderer.
-  m_renderer->submit(my_object);
+  m_active_scene->add_object(my_object);
 
   Input *input = m_window->get_input();
   while (!m_window->should_close()) {
@@ -68,7 +68,8 @@ void Application::run() {
 
     // Render
     m_renderer->update(Time::get_delta_time());
-    m_renderer->draw(*m_camera, m_window->get_width(), m_window->get_height());
+    m_renderer->draw(*m_active_scene, m_window->get_width(),
+                     m_window->get_height());
     m_window->swap_buffers();
     input->update();
     Time::end_frame();

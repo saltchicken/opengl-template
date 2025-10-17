@@ -5,7 +5,7 @@
 class Window;
 class Settings;
 class Renderer;
-class Camera;
+class Scene;
 
 class Application {
 public:
@@ -19,5 +19,5 @@ private:
   std::unique_ptr<Window> m_window;
   std::unique_ptr<Settings> m_settings;
   std::unique_ptr<Renderer> m_renderer;
-  std::unique_ptr<Camera> m_camera;
+  std::unique_ptr<Scene> m_active_scene;
 };

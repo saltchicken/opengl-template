@@ -1,5 +1,5 @@
 #include "graphics/Renderer.h"
-#include "scene/Camera.h"
+#include "scene/Scene.h"
 #include "utils/ResourceManager.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -27,14 +27,12 @@ void Renderer::update(float delta_time) {
   // std::cout << delta_time << std::endl;
 }
 
-void Renderer::submit(const std::shared_ptr<SceneObject> object) {
-  m_scene_objects.push_back(object);
-}
-
-void Renderer::draw(Camera &camera, unsigned int screen_width,
+void Renderer::draw(Scene &scene, unsigned int screen_width,
                     unsigned int screen_height) {
   glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  Camera &camera = scene.get_camera();
 
   // Use the shader and draw the triangle
   m_shader->use();
@@ -47,7 +45,7 @@ void Renderer::draw(Camera &camera, unsigned int screen_width,
   m_shader->set_mat4("projection", projection);
   m_shader->set_mat4("view", view);
 
-  for (const auto &object : m_scene_objects) {
+  for (const auto &object : scene.get_scene_objects()) {
     m_shader->set_mat4("model", object->transform);
     object->mesh->draw(*m_shader);
   }
