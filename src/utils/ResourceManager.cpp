@@ -67,6 +67,8 @@ std::shared_ptr<Mesh> ResourceManager::get_primitive(const std::string &name) {
       m_meshes[name] = create_quad();
     } else if (name == "cube") {
       m_meshes[name] = create_cube();
+    } else if (name == "sphere") {
+      m_meshes[name] = create_sphere();
     } else {
       std::cerr << "Primitive '" << name << "' not recognized." << std::endl;
       return nullptr;
@@ -144,6 +146,40 @@ std::shared_ptr<Mesh> ResourceManager::create_cube() {
                                        16, 17, 18, 18, 19, 16,
                                        // Top face
                                        20, 21, 22, 22, 23, 20};
+  std::vector<std::shared_ptr<Texture>> textures;
+  return std::make_shared<Mesh>(vertices, indices, textures);
+}
+
+std::shared_ptr<Mesh> ResourceManager::create_sphere() {
+  std::vector<Vertex> vertices;
+  std::vector<unsigned int> indices;
+  const unsigned int X_SEGMENTS = 64;
+  const unsigned int Y_SEGMENTS = 64;
+  const float PI = 3.14159265359f;
+  for (unsigned int y = 0; y <= Y_SEGMENTS; ++y) {
+    for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
+      float x_segment = (float)x / (float)X_SEGMENTS;
+      float y_segment = (float)y / (float)Y_SEGMENTS;
+      float x_pos = std::cos(x_segment * 2.0f * PI) * std::sin(y_segment * PI);
+      float y_pos = std::cos(y_segment * PI);
+      float z_pos = std::sin(x_segment * 2.0f * PI) * std::sin(y_segment * PI);
+      Vertex vertex;
+      vertex.Position = {x_pos, y_pos, z_pos};
+      vertex.TexCoords = {x_segment, y_segment};
+      vertex.Normal = {x_pos, y_pos, z_pos};
+      vertices.push_back(vertex);
+    }
+  }
+  for (unsigned int y = 0; y < Y_SEGMENTS; ++y) {
+    for (unsigned int x = 0; x < X_SEGMENTS; ++x) {
+      indices.push_back(y * (X_SEGMENTS + 1) + x);
+      indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+      indices.push_back(y * (X_SEGMENTS + 1) + x + 1);
+      indices.push_back((y + 1) * (X_SEGMENTS + 1) + x);
+      indices.push_back((y + 1) * (X_SEGMENTS + 1) + x + 1);
+      indices.push_back(y * (X_SEGMENTS + 1) + x + 1);
+    }
+  }
   std::vector<std::shared_ptr<Texture>> textures;
   return std::make_shared<Mesh>(vertices, indices, textures);
 }

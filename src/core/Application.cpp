@@ -101,6 +101,13 @@ void Application::run() {
 
   m_active_scene->add_object(multi_anim_object);
 
+  auto sphere_mesh = ResourceManager::get_primitive("sphere");
+  if (my_texture) {
+    sphere_mesh->textures.push_back(my_texture);
+  }
+  auto sphere_object = std::make_shared<SceneObject>(sphere_mesh);
+  sphere_object->transform->position = glm::vec3(0.0f, 1.5f, 0.0f);
+  m_active_scene->add_object(sphere_object);
   //
   // End SCENE SETUP
   //
