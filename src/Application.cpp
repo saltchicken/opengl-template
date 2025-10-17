@@ -1,7 +1,6 @@
 #include "Application.h"
 #include "Camera.h"
 #include "Input.h"
-#include "PrimitiveFactory.h"
 #include "Renderer.h"
 #include "ResourceManager.h"
 #include "SceneObject.h"

@@ -30,6 +30,8 @@ public:
   static void clear();
 
 private:
+  static std::shared_ptr<Mesh> create_quad();
+
   static std::unordered_map<std::string, std::shared_ptr<Shader>> m_shaders;
   static std::unordered_map<std::string, std::shared_ptr<Texture>> m_textures;
   static std::unordered_map<std::string, std::shared_ptr<Mesh>> m_meshes;

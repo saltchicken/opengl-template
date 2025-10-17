@@ -1,5 +1,4 @@
 #include "ResourceManager.h"
-#include "PrimitiveFactory.h"
 #include <iostream>
 
 // Instantiate static variables
@@ -65,7 +64,7 @@ std::shared_ptr<Texture> ResourceManager::get_texture(const std::string &name) {
 std::shared_ptr<Mesh> ResourceManager::get_primitive(const std::string &name) {
   if (m_meshes.find(name) == m_meshes.end()) {
     if (name == "quad") {
-      m_meshes[name] = PrimitiveFactory::create_quad();
+      m_meshes[name] = create_quad();
 
     }
     // TODO: Add other primitives here...
@@ -82,4 +81,20 @@ void ResourceManager::clear() {
   m_shaders.clear();
   m_textures.clear();
   m_meshes.clear();
+}
+
+std::shared_ptr<Mesh> ResourceManager::create_quad() {
+  std::vector<Vertex> vertices = {
+      // positions            // normals           // texture coords
+      {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
+      {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // bottom right
+      {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // top right
+      {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // top left
+  };
+  std::vector<unsigned int> indices = {
+      0, 1, 2, // first triangle
+      2, 3, 0  // second triangle
+  };
+  std::vector<std::shared_ptr<Texture>> textures;
+  return std::make_shared<Mesh>(vertices, indices, textures);
 }
