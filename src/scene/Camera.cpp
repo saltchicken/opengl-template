@@ -1,4 +1,4 @@
-#include "Camera.h"
+#include "scene/Camera.h"
 
 Camera::Camera(glm::vec3 position) : Position(position), Fov(FOV) {}
 

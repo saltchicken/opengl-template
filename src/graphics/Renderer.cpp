@@ -1,7 +1,6 @@
-#include "Renderer.h"
-#include "Camera.h"
-#include "ResourceManager.h"
-#include "Shader.h"
+#include "graphics/Renderer.h"
+#include "scene/Camera.h"
+#include "utils/ResourceManager.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>

@@ -1,5 +1,5 @@
 #pragma once
-#include "SceneObject.h"
+#include "scene/SceneObject.h"
 #include <memory>
 #include <vector>
 

@@ -1,5 +1,5 @@
-#include "Mesh.h"
-#include "Texture.h"
+#include "graphics/Mesh.h"
+#include "graphics/Texture.h"
 #include <glad/glad.h>
 #include <utility> // For std::move
 

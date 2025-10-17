@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mesh.h"
+#include "graphics/Mesh.h"
 #include <memory>
 
 struct SceneObject {

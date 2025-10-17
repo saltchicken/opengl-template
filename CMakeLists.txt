@@ -30,19 +30,9 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
 
 # --- Define Source Files ---
-set(SOURCE_FILES
-    src/main.cpp
-    src/Application.cpp
-    src/Window.cpp
-    src/Renderer.cpp
-    src/Settings.cpp
-    src/Shader.cpp
-    src/Input.cpp
-    src/Time.cpp
-    src/Mesh.cpp
-    src/Camera.cpp
-    src/ResourceManager.cpp
-    src/Texture.cpp
+file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
+
+list(APPEND SOURCE_FILES
     libs/glad/src/glad.c
 )
 

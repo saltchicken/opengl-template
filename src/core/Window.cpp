@@ -1,5 +1,5 @@
-#include "Window.h"
-#include "Input.h"
+#include "core/Window.h"
+#include "core/Input.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>

@@ -1,12 +1,12 @@
-#include "Application.h"
-#include "Camera.h"
-#include "Input.h"
-#include "Renderer.h"
-#include "ResourceManager.h"
-#include "SceneObject.h"
-#include "Settings.h"
-#include "Time.h"
-#include "Window.h"
+#include "core/Application.h"
+#include "core/Input.h"
+#include "core/Settings.h"
+#include "core/Time.h"
+#include "core/Window.h"
+#include "graphics/Renderer.h"
+#include "scene/Camera.h"
+#include "scene/SceneObject.h"
+#include "utils/ResourceManager.h"
 
 #include <GLFW/glfw3.h>
 #include <iostream>

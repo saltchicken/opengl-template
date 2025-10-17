@@ -1,5 +1,5 @@
-#include "Input.h"
-#include "Window.h"
+#include "core/Input.h"
+#include "core/Window.h"
 #include <cstring>
 
 Input::Input(GLFWwindow *window) : m_window(window) {}
