@@ -16,6 +16,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # --- Fetch Dependencies ---
+set(FETCHCONTENT_BASE_DIR "${CMAKE_SOURCE_DIR}/.cache")
 include(FetchContent)
 FetchContent_Declare(
     glm
