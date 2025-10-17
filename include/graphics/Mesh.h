@@ -3,7 +3,6 @@
 #include "graphics/Shader.h"
 #include <glm/glm.hpp>
 #include <memory>
-#include <string>
 #include <vector>
 
 class Texture;
