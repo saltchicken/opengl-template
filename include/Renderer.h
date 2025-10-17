@@ -18,6 +18,6 @@ public:
             unsigned int screen_height);
 
 private:
-  std::unique_ptr<Shader> m_shader; // Manages the shader's lifetime
+  std::shared_ptr<Shader> m_shader; // Manages the shader's lifetime
   std::vector<std::shared_ptr<SceneObject>> m_scene_objects;
 };

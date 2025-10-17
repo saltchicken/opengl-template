@@ -3,6 +3,7 @@
 #include "Input.h"
 #include "PrimitiveFactory.h"
 #include "Renderer.h"
+#include "ResourceManager.h"
 #include "SceneObject.h"
 #include "Settings.h"
 #include "Time.h"
@@ -19,7 +20,7 @@ Application::Application() {
   m_camera = std::make_unique<Camera>(glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
-Application::~Application() = default;
+Application::~Application() { ResourceManager::clear(); };
 
 void Application::run() {
   m_settings->load("settings.toml");
@@ -38,8 +39,13 @@ void Application::run() {
   }
 
   // Create a quad mesh
-  auto quad_mesh = PrimitiveFactory::create_quad();
+  auto quad_mesh = ResourceManager::get_primitive("quad");
 
+  auto my_texture =
+      ResourceManager::load_texture("test", "assets/textures/test.png");
+  if (my_texture) {
+    quad_mesh->textures.push_back(my_texture);
+  }
   // 2. Create a scene object using the mesh.
   auto my_object = std::make_shared<SceneObject>(quad_mesh);
   // You can set its position, rotation, or scale here if you want.

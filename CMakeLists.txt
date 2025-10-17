@@ -42,6 +42,8 @@ set(SOURCE_FILES
     src/Mesh.cpp
     src/Camera.cpp
     src/PrimitiveFactory.cpp
+    src/ResourceManager.cpp
+    src/Texture.cpp
     libs/glad/src/glad.c
 )
 
@@ -52,6 +54,7 @@ add_executable(OpenGLTemplate ${SOURCE_FILES})
 target_include_directories(OpenGLTemplate PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/libs/glad/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/libs
     ${OPENGL_INCLUDE_DIR}
     ${glfw3_INCLUDE_DIRS}
 )
@@ -76,6 +79,7 @@ endfunction()
 
 # Copy the shaders directory after building the executable
 copy_directory_to_target_dir(OpenGLTemplate shaders)
+copy_directory_to_target_dir(OpenGLTemplate assets)
 
 add_custom_command(
     TARGET OpenGLTemplate POST_BUILD

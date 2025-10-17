@@ -1,10 +1,11 @@
 #include "Mesh.h"
+#include "Texture.h"
 #include <glad/glad.h>
 #include <utility> // For std::move
 
 // Constructor: Initializes the mesh with data and sets up GPU buffers.
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-           std::vector<Texture> textures)
+           std::vector<std::shared_ptr<Texture>> textures)
     : vertices(std::move(vertices)), indices(std::move(indices)),
       textures(std::move(textures)) {
   // Now that we have all the required data, set up the vertex buffers and
@@ -103,8 +104,12 @@ void Mesh::setup_mesh() {
 
 // Renders the mesh.
 void Mesh::draw(Shader &shader) {
-  // TODO: Bind relevant textures
-  // For now, we just draw the mesh.
+  // Bind the first texture if it exists.
+  // A more advanced system would loop through all textures.
+  if (!textures.empty() && textures[0]) {
+    shader.set_int("u_texture", 0); // Tell shader to use texture unit 0
+    textures[0]->bind(0);
+  }
 
   // Bind the VAO and draw the elements
   glBindVertexArray(m_vao);
@@ -113,4 +118,8 @@ void Mesh::draw(Shader &shader) {
 
   // Unbind the VAO to be clean
   glBindVertexArray(0);
+
+  // Unbind texture
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture(GL_TEXTURE_2D, 0);
 }

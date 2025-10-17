@@ -2,8 +2,11 @@
 
 #include "Shader.h"
 #include <glm/glm.hpp>
+#include <memory>
 #include <string>
 #include <vector>
+
+class Texture;
 
 struct Vertex {
   glm::vec3 Position;
@@ -11,22 +14,16 @@ struct Vertex {
   glm::vec2 TexCoords;
 };
 
-// NOTE: For now, this is a placeholder. We'll need a real Texture class later.
-struct Texture {
-  unsigned int id;
-  std::string type; // e.g., "texture_diffuse", "texture_specular"
-};
-
 class Mesh {
 public:
   // Mesh data
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
-  std::vector<Texture> textures;
+  std::vector<std::shared_ptr<Texture>> textures;
 
   // Constructor
   Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
-       std::vector<Texture> textures);
+       std::vector<std::shared_ptr<Texture>> textures);
 
   // Destructor to free GPU resources
   ~Mesh();

@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "Camera.h"
+#include "ResourceManager.h"
 #include "Shader.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,11 +12,11 @@ Renderer::~Renderer() = default;
 bool Renderer::init() {
   glEnable(GL_DEPTH_TEST);
   // 1. Create the shader program using our Shader class
-  try {
-    m_shader =
-        std::make_unique<Shader>("shaders/shader.vert", "shaders/shader.frag");
-  } catch (const std::exception &e) {
-    std::cerr << "Failed to create shader: " << e.what() << std::endl;
+  m_shader = ResourceManager::load_shader("default", "shaders/shader.vert",
+                                          "shaders/shader.frag");
+
+  if (!m_shader) {
+    std::cerr << "Failed to load default shader." << std::endl;
     return false;
   }
 

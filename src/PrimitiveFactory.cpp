@@ -1,4 +1,5 @@
 #include "PrimitiveFactory.h"
+#include "Texture.h"
 
 std::shared_ptr<Mesh> PrimitiveFactory::create_quad() {
   std::vector<Vertex> vertices = {
@@ -15,7 +16,7 @@ std::shared_ptr<Mesh> PrimitiveFactory::create_quad() {
   };
 
   // For primitives, we can start with an empty texture vector.
-  std::vector<Texture> textures;
+  std::vector<std::shared_ptr<Texture>> textures;
 
   return std::make_shared<Mesh>(vertices, indices, textures);
 }
