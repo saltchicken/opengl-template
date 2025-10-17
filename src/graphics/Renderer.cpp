@@ -61,10 +61,6 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
     return;
   }
 
-  if (!camera_comp) {
-    return; // The "camera" object doesn't have a camera component
-  }
-
   // Use the shader and draw the triangle
   m_shader->use();
 
