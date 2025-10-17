@@ -4,7 +4,7 @@
 #include "core/Time.h"
 #include "core/Window.h"
 #include "graphics/Renderer.h"
-#include "scene/RotationComponent.h"
+#include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
 #include "scene/SceneObject.h"
 #include "utils/Log.h"
@@ -38,28 +38,35 @@ void Application::run() {
     return;
   }
 
-  // Create a quad mesh
   auto cube_mesh = ResourceManager::get_primitive("cube");
-
   auto my_texture =
       ResourceManager::load_texture("test", "assets/textures/test.png");
   if (my_texture) {
     cube_mesh->textures.push_back(my_texture);
   }
-  // 2. Create a scene object using the mesh.
-  auto my_object = std::make_shared<SceneObject>(cube_mesh);
-  my_object->transform->position = glm::vec3(0.0f, 0.0f, 0.0f);
-  my_object->transform->scale = glm::vec3(0.5f); // Make it half size
 
-  my_object->add_component<RotationComponent>(
+  // Create a quad mesh
+  auto rotating_object = std::make_shared<SceneObject>(cube_mesh);
+  rotating_object->transform->position = glm::vec3(-1.5f, 0.0f, 0.0f);
+
+  // Use the new component to add rotation behavior
+  rotating_object->add_component<PropertyAnimatorComponent>(
       glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)), 50.0f);
-  // You can set its position, rotation, or scale here if you want.
-  // For example, to move it right:
-  // my_object->transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,
-  // 0.0f, 0.0f));
 
-  // 3. Submit the object to the renderer.
-  m_active_scene->add_object(my_object);
+  m_active_scene->add_object(rotating_object);
+
+  // === Object 2: The Bobbing Cube ===
+  auto bobbing_object = std::make_shared<SceneObject>(cube_mesh);
+  bobbing_object->transform->position = glm::vec3(1.5f, 0.0f, 0.0f);
+
+  // Use the same component to add position behavior (bobbing up and down)
+  bobbing_object->add_component<PropertyAnimatorComponent>(
+      glm::vec3(0.0f, 1.0f, 0.0f), // Direction (up)
+      2.0f,                        // Speed
+      0.5f                         // Distance
+  );
+
+  m_active_scene->add_object(bobbing_object);
 
   Input *input = m_window->get_input();
   Log::debug("Starting main loop");
