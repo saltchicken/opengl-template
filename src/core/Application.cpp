@@ -51,7 +51,9 @@ void Application::run() {
 
   // Use the new component to add rotation behavior
   rotating_object->add_component<PropertyAnimatorComponent>(
-      glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)), 50.0f);
+      PropertyAnimatorComponent::TargetProperty::ROTATION,
+      PropertyAnimatorComponent::RotationParams{
+          glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)), 50.0f});
 
   m_active_scene->add_object(rotating_object);
 
@@ -61,10 +63,9 @@ void Application::run() {
 
   // Use the same component to add position behavior (bobbing up and down)
   bobbing_object->add_component<PropertyAnimatorComponent>(
-      glm::vec3(0.0f, 1.0f, 0.0f), // Direction (up)
-      2.0f,                        // Speed
-      0.5f                         // Distance
-  );
+      PropertyAnimatorComponent::TargetProperty::POSITION,
+      PropertyAnimatorComponent::PositionParams{glm::vec3(0.0f, 1.0f, 0.0f),
+                                                2.0f, 0.5f});
 
   m_active_scene->add_object(bobbing_object);
 

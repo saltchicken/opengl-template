@@ -1,47 +1,43 @@
 #pragma once
 #include "scene/Component.h"
 #include <glm/glm.hpp>
+#include <variant>
 
 class PropertyAnimatorComponent : public Component {
 public:
-  // Defines which property of the TransformComponent we will animate
+  // This enum is now the primary way to specify the animation type
   enum class TargetProperty { ROTATION, POSITION, SCALE };
 
-  // Parameters for rotation
+  // Parameter structs remain the same
   struct RotationParams {
     glm::vec3 axis;
     float degrees_per_second;
   };
-
-  // Parameters for a simple sinusoidal position movement (bobbing)
   struct PositionParams {
     glm::vec3 direction;
     float speed;
     float distance;
   };
+  struct ScaleParams {
+    float speed;
+    float min_scale;
+    float max_scale;
+  };
 
-  // You could add more parameter structs for other animation types!
+  // Alias for our variant to make the constructor cleaner
+  using AnimationParams =
+      std::variant<RotationParams, PositionParams, ScaleParams>;
 
-  // Constructor for Rotation
-  PropertyAnimatorComponent(const glm::vec3 &axis, float degrees_per_second);
-
-  // Constructor for Position
-  PropertyAnimatorComponent(const glm::vec3 &direction, float speed,
-                            float distance);
+  // A single, explicit public constructor
+  PropertyAnimatorComponent(TargetProperty target, AnimationParams params);
 
   void update(float delta_time) override;
   void awake() override;
 
 private:
   TargetProperty m_target;
+  AnimationParams m_params;
 
-  // A union is a good way to store params since only one set is active at a
-  // time
-  union {
-    RotationParams m_rot_params;
-    PositionParams m_pos_params;
-  };
-
-  // We need to store the original position for sine wave movement
   glm::vec3 m_original_position;
+  glm::vec3 m_original_scale;
 };

@@ -4,23 +4,9 @@
 #include <cmath>        // For sin()
 #include <glm/gtc/quaternion.hpp>
 
-// Constructor for Rotation
-PropertyAnimatorComponent::PropertyAnimatorComponent(const glm::vec3 &axis,
-                                                     float degrees_per_second)
-    : m_target(TargetProperty::ROTATION) {
-  m_rot_params.axis = axis;
-  m_rot_params.degrees_per_second = degrees_per_second;
-}
-
-// Constructor for Position (a bobbing motion)
-PropertyAnimatorComponent::PropertyAnimatorComponent(const glm::vec3 &direction,
-                                                     float speed,
-                                                     float distance)
-    : m_target(TargetProperty::POSITION) {
-  m_pos_params.direction = glm::normalize(direction);
-  m_pos_params.speed = speed;
-  m_pos_params.distance = distance;
-}
+PropertyAnimatorComponent::PropertyAnimatorComponent(TargetProperty target,
+                                                     AnimationParams params)
+    : m_target(target), m_params(std::move(params)) {}
 
 void PropertyAnimatorComponent::awake() {
   // Store the owner's starting position if we are animating position
@@ -34,27 +20,36 @@ void PropertyAnimatorComponent::update(float delta_time) {
     return;
   }
 
-  switch (m_target) {
-  case TargetProperty::ROTATION: {
-    float radians = glm::radians(m_rot_params.degrees_per_second) * delta_time;
-    glm::quat rotation_delta = glm::angleAxis(radians, m_rot_params.axis);
-    m_owner->transform->rotation =
-        rotation_delta * m_owner->transform->rotation;
-    break;
-  }
+  float total_time = static_cast<float>(glfwGetTime());
 
-  case TargetProperty::POSITION: {
-    // Calculate a bobbing motion using a sine wave
-    float total_time = static_cast<float>(glfwGetTime());
-    float offset = sin(total_time * m_pos_params.speed) * m_pos_params.distance;
-    m_owner->transform->position =
-        m_original_position + m_pos_params.direction * offset;
-    break;
-  }
+  // 'std::visit' safely unpacks the variant. The 'arg' variable below
+  // becomes a reference to whichever struct is currently active inside
+  // m_params.
+  std::visit(
+      [&](auto &&arg) {
+        // 'decay_t' gets the underlying type of 'arg' (e.g., RotationParams)
+        using T = std::decay_t<decltype(arg)>;
 
-  case TargetProperty::SCALE: {
-    // Example: A pulsing scale effect could be implemented here
-    break;
-  }
-  }
+        if constexpr (std::is_same_v<T, RotationParams>) {
+          // Here, 'arg' IS the RotationParams struct
+          float radians = glm::radians(arg.degrees_per_second) * delta_time;
+          glm::quat rotation_delta = glm::angleAxis(radians, arg.axis);
+          m_owner->transform->rotation =
+              rotation_delta * m_owner->transform->rotation;
+        } else if constexpr (std::is_same_v<T, PositionParams>) {
+          // Here, 'arg' IS the PositionParams struct
+          float offset = sin(total_time * arg.speed) * arg.distance;
+          m_owner->transform->position =
+              m_original_position + arg.direction * offset;
+        } else if constexpr (std::is_same_v<T, ScaleParams>) {
+          // Here, 'arg' IS the ScaleParams struct
+          float range = arg.max_scale - arg.min_scale;
+          float sine_wave_normalized =
+              (sin(total_time * arg.speed) + 1.0f) / 2.0f;
+          float current_scale_val =
+              arg.min_scale + (sine_wave_normalized * range);
+          m_owner->transform->scale = m_original_scale * current_scale_val;
+        }
+      },
+      m_params); // We are visiting our m_params member
 }
