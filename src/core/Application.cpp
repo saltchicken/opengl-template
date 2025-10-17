@@ -6,10 +6,10 @@
 #include "graphics/Renderer.h"
 #include "scene/Scene.h"
 #include "scene/SceneObject.h"
+#include "utils/Log.h"
 #include "utils/ResourceManager.h"
 
 #include <GLFW/glfw3.h>
-#include <iostream>
 
 Application::Application() {
   m_window = std::make_unique<Window>();
@@ -29,11 +29,11 @@ void Application::run() {
   // 1. Initialize window and renderer
   if (!m_window->init(config.window_width, config.window_height,
                       config.window_title.c_str(), config.window_resizable)) {
-    std::cerr << "Failed to initialize window!" << std::endl;
+    Log::error("Failed to initialize window!");
     return;
   }
   if (!m_renderer->init()) {
-    std::cerr << "Failed to initialize renderer!" << std::endl;
+    Log::error("Failed to initialize renderer!");
     return;
   }
 
@@ -56,6 +56,7 @@ void Application::run() {
   m_active_scene->add_object(my_object);
 
   Input *input = m_window->get_input();
+  Log::debug("Starting main loop");
   while (!m_window->should_close()) {
     Time::begin_frame();
 

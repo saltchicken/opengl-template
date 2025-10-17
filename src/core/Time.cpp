@@ -1,8 +1,7 @@
 #include "core/Time.h"
+#include "utils/Log.h"
 #include <GLFW/glfw3.h> // For glfwGetTime()
 #include <chrono>
-#include <iomanip> // For std::fixed and std::setprecision
-#include <iostream>
 #include <thread>
 
 float Time::s_target_fps = 60.0f;
@@ -69,9 +68,7 @@ void Time::end_frame() {
     double over_sleep_amount = actual_sleep_duration - sleep_duration.count();
 
     if (over_sleep_amount > 0.001) {
-      std::cout << std::fixed << std::setprecision(4)
-                << "DIAGNOSTIC: sleep_for over-slept by "
-                << over_sleep_amount * 1000.0 << std::endl;
+      Log::warn("sleep_for over-slept by " + std::to_string(over_sleep_amount));
     }
     // End accuracy detection
   }
@@ -82,7 +79,7 @@ void Time::end_frame() {
   // wait period.
   while (glfwGetTime() < target_frame_end_time) {
     // Busy-wait (spin) until the target time is reached.
-    // std::cout << "Spinning..." << std::endl;
+    // Log::info("Spinning...");
   }
 }
 
@@ -90,14 +87,11 @@ void Time::update_fps() {
   s_frame_count++;
   // If one second has passed since the last FPS update
   if (s_frame_start_time - s_last_fps_time >= 1.0) {
-    std::cout << "FPS: " << s_frame_count << std::endl;
+    Log::debug("FPS: " + std::to_string(s_frame_count));
 
     // NOTE: This can be removed if perfect accuracy detection is not needed
     if (s_missed_frames_count > 0) {
-      // Send to std::cerr as it's a warning/error condition.
-      std::cerr << "WARN: Failed to meet target FPS. Missed "
-                << s_missed_frames_count << " of " << s_frame_count
-                << " frames in the last second." << std::endl;
+      Log::warn("Missed " + std::to_string(s_missed_frames_count) + " frames.");
     }
     // End accuracy detection
 

@@ -4,6 +4,13 @@ cmake_minimum_required(VERSION 3.12)
 # Define the project
 project(OpenGLTemplate VERSION 1.0)
 
+if(NOT CMAKE_BUILD_TYPE)
+  # Set the default to "Release"
+  set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
+  # Print a message to the user
+  message(STATUS "No build type specified, defaulting to ${CMAKE_BUILD_TYPE}.")
+endif()
+
 # Set the C++ standard to C++17
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
