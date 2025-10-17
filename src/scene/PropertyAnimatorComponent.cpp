@@ -1,6 +1,7 @@
 #include "scene/PropertyAnimatorComponent.h"
 #include "core/Time.h"
 #include "scene/SceneObject.h"
+#include "utils/Log.h"
 #include <cmath> // For sin()
 #include <glm/gtc/quaternion.hpp>
 
@@ -9,9 +10,15 @@ PropertyAnimatorComponent::PropertyAnimatorComponent(TargetProperty target,
     : m_target(target), m_params(std::move(params)) {}
 
 void PropertyAnimatorComponent::awake() {
-  // Store the owner's starting position if we are animating position
-  if (m_owner && m_owner->transform && m_target == TargetProperty::POSITION) {
+  if (!m_owner || !m_owner->transform) {
+    Log::error("PropertyAnimatorComponent: No owner or transform");
+    return;
+  }
+
+  if (m_target == TargetProperty::POSITION) {
     m_original_position = m_owner->transform->position;
+  } else if (m_target == TargetProperty::SCALE) {
+    m_original_scale = m_owner->transform->scale;
   }
 }
 
