@@ -46,7 +46,7 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
   m_shader->set_mat4("view", view);
 
   for (const auto &object : scene.get_scene_objects()) {
-    m_shader->set_mat4("model", object->transform);
+    m_shader->set_mat4("model", object->transform->get_transform_matrix());
     object->mesh->draw(*m_shader);
   }
 }

@@ -48,6 +48,9 @@ void Application::run() {
   }
   // 2. Create a scene object using the mesh.
   auto my_object = std::make_shared<SceneObject>(cube_mesh);
+  my_object->transform->position = glm::vec3(0.0f, 0.0f, 0.0f);
+  my_object->transform->scale = glm::vec3(0.5f); // Make it half size
+
   my_object->add_component<RotationComponent>(
       glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)), 50.0f);
   // You can set its position, rotation, or scale here if you want.

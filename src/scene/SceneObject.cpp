@@ -2,7 +2,7 @@
 
 // The constructor now just takes the mesh
 SceneObject::SceneObject(std::shared_ptr<Mesh> m)
-    : mesh(m), transform(glm::mat4(1.0f)) {}
+    : mesh(m), transform(std::make_shared<TransformComponent>()) {}
 
 // The update function loops through all components and calls their update
 // methods

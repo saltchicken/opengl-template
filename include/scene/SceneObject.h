@@ -2,6 +2,7 @@
 
 #include "graphics/Mesh.h"
 #include "scene/Component.h"
+#include "scene/TransformComponent.h"
 #include <memory>
 #include <vector>
 
@@ -9,9 +10,7 @@ struct SceneObject {
   // Use a shared_ptr so multiple objects can share the same mesh data (e.g., a
   // forest of identical trees)
   std::shared_ptr<Mesh> mesh;
-
-  // Represents the object's position, rotation, and scale in the world
-  glm::mat4 transform;
+  std::shared_ptr<TransformComponent> transform;
 
   std::vector<std::shared_ptr<Component>> m_components;
 
