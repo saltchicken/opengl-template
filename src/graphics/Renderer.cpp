@@ -19,6 +19,15 @@ bool Renderer::init() {
     return false;
   }
 
+  m_background_shader = ResourceManager::load_shader(
+      "background", "shaders/background.vert", "shaders/background.frag");
+  if (!m_background_shader) {
+    std::cerr << "Failed to load 'background' shader." << std::endl;
+    return false;
+  }
+
+  m_background_mesh = ResourceManager::get_primitive("quad");
+
   std::cout << "Renderer initialized successfully." << std::endl;
   return true;
 }
@@ -29,8 +38,13 @@ void Renderer::update(float delta_time) {
 
 void Renderer::draw(Scene &scene, unsigned int screen_width,
                     unsigned int screen_height) {
-  glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+  glDepthMask(GL_FALSE);
+  m_background_shader->use();
+  m_background_mesh->draw(*m_background_shader);
+  // Re-enable depth writing for the main scene.
+  glDepthMask(GL_TRUE);
 
   Camera &camera = scene.get_camera();
 

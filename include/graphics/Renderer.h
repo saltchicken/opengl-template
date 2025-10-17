@@ -3,6 +3,7 @@
 
 class Shader; // Forward declaration
 class Scene;
+class Mesh;
 
 class Renderer {
 public:
@@ -16,4 +17,6 @@ public:
 
 private:
   std::shared_ptr<Shader> m_shader; // Manages the shader's lifetime
+  std::shared_ptr<Shader> m_background_shader;
+  std::shared_ptr<Mesh> m_background_mesh;
 };
