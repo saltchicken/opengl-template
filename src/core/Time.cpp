@@ -13,6 +13,8 @@ double Time::s_last_fps_time = 0.0;
 int Time::s_frame_count = 0;
 int Time::s_missed_frames_count = 0;
 
+double Time::s_total_time = 0.0;
+
 void Time::init(float target_fps) {
   s_target_fps = target_fps;
   s_target_frame_time = 1.0 / target_fps;
@@ -25,6 +27,8 @@ void Time::begin_frame() {
   s_frame_start_time = glfwGetTime();
   s_delta_time = s_frame_start_time - s_last_frame_time;
   s_last_frame_time = s_frame_start_time;
+
+  s_total_time += static_cast<float>(s_delta_time);
 
   update_fps();
 }

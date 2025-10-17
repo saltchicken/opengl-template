@@ -13,7 +13,9 @@ public:
   static void end_frame();
 
   // Returns the time in seconds it took to complete the last frame.
-  static float get_delta_time() { return s_delta_time; }
+  static double get_delta_time() { return s_delta_time; }
+
+  static double get_total_time() { return s_total_time; }
 
 private:
   Time() = default;
@@ -24,6 +26,7 @@ private:
   static double s_frame_start_time;
   static double s_last_frame_time;
   static double s_delta_time;
+  static double s_total_time;
 
   // For FPS calculation
   static double s_last_fps_time;

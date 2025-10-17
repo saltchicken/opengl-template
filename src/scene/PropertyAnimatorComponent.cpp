@@ -1,7 +1,7 @@
 #include "scene/PropertyAnimatorComponent.h"
+#include "core/Time.h"
 #include "scene/SceneObject.h"
-#include <GLFW/glfw3.h> // For glfwGetTime()
-#include <cmath>        // For sin()
+#include <cmath> // For sin()
 #include <glm/gtc/quaternion.hpp>
 
 PropertyAnimatorComponent::PropertyAnimatorComponent(TargetProperty target,
@@ -20,7 +20,7 @@ void PropertyAnimatorComponent::update(float delta_time) {
     return;
   }
 
-  float total_time = static_cast<float>(glfwGetTime());
+  double total_time = Time::get_total_time();
 
   // 'std::visit' safely unpacks the variant. The 'arg' variable below
   // becomes a reference to whichever struct is currently active inside

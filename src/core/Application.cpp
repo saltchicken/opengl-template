@@ -110,6 +110,8 @@ void Application::run() {
   while (!m_window->should_close()) {
     Time::begin_frame();
 
+    double delta_time = Time::get_delta_time();
+
     m_window->poll_events();
 
     // NOTE: This is required to prevent SIGSEGV (Address boundary error)
@@ -118,10 +120,10 @@ void Application::run() {
     }
 
     // Update all object and their components in the scene
-    m_active_scene->update(Time::get_delta_time());
+    m_active_scene->update(delta_time);
 
     // Render
-    m_renderer->update(Time::get_delta_time());
+    m_renderer->update(delta_time);
     m_renderer->draw(*m_active_scene, m_window->get_width(),
                      m_window->get_height());
     m_window->swap_buffers();
