@@ -4,6 +4,7 @@
 #include "core/Time.h"
 #include "core/Window.h"
 #include "graphics/Renderer.h"
+#include "scene/CameraComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
 #include "scene/SceneObject.h"
@@ -41,6 +42,15 @@ void Application::run() {
   //
   // SCENE SETUP
   // TODO: This needs to be factored out of application.cpp
+
+  auto camera_object = std::make_shared<SceneObject>(nullptr); // No mesh needed
+  camera_object->transform->position =
+      glm::vec3(0.0f, 0.0f, 5.0f); // Position it
+  camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
+
+  // 2. Add it to the scene and set it as the active camera
+  m_active_scene->add_object(camera_object);
+  m_active_scene->set_active_camera(camera_object);
 
   auto cube_mesh = ResourceManager::get_primitive("cube");
   auto my_texture =

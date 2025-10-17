@@ -1,9 +1,7 @@
 #include "scene/Scene.h"
+#include "scene/CameraComponent.h"
 
-Scene::Scene()
-    // Initialize the camera looking at the origin from 3 units away on the
-    // Z-axis. The Scene now creates and owns the Camera directly.
-    : m_camera(glm::vec3(0.0f, 0.0f, 3.0f)) {}
+Scene::Scene() {}
 
 void Scene::add_object(std::shared_ptr<SceneObject> object) {
   m_scene_objects.push_back(object);
@@ -22,6 +20,23 @@ Scene::get_scene_objects() const {
   return m_scene_objects;
 }
 
-// We return a non-const reference so that we can modify the camera later
-// (e.g., for movement).
-Camera &Scene::get_camera() { return m_camera; }
+void Scene::set_active_camera(std::shared_ptr<SceneObject> camera_object) {
+  // It's good practice to ensure the object actually has a camera component
+  if (camera_object) { // You could add a GetComponent<T> method for a cleaner
+                       // check
+    bool has_camera_comp = false;
+    for (const auto &comp : camera_object->m_components) {
+      if (std::dynamic_pointer_cast<CameraComponent>(comp)) {
+        has_camera_comp = true;
+        break;
+      }
+    }
+    if (has_camera_comp) {
+      m_active_camera = camera_object;
+    }
+  }
+}
+
+std::shared_ptr<SceneObject> Scene::get_active_camera() const {
+  return m_active_camera.lock(); // .lock() converts weak_ptr to shared_ptr
+}

@@ -1,4 +1,5 @@
 #include "graphics/Renderer.h"
+#include "scene/CameraComponent.h"
 #include "scene/Scene.h"
 #include "utils/ResourceManager.h"
 #include <glad/glad.h>
@@ -46,21 +47,40 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
   // Re-enable depth writing for the main scene.
   glDepthMask(GL_TRUE);
 
-  Camera &camera = scene.get_camera();
+  auto camera_object = scene.get_active_camera();
+  if (!camera_object) {
+    return; // No camera, no rendering
+  }
+
+  // 2. Get the required components from the camera object
+  // (A GetComponent<T> helper on SceneObject would make this cleaner)
+  CameraComponent *camera_comp = nullptr;
+  for (const auto &comp : camera_object->m_components) {
+    camera_comp = std::dynamic_pointer_cast<CameraComponent>(comp).get();
+    if (camera_comp)
+      break;
+  }
+
+  if (!camera_comp) {
+    return; // The "camera" object doesn't have a camera component
+  }
 
   // Use the shader and draw the triangle
   m_shader->use();
 
-  glm::mat4 view = camera.GetViewMatrix();
-  glm::mat4 projection =
-      glm::perspective(glm::radians(camera.Fov),
-                       (float)screen_width / screen_height, 0.1f, 100.0f);
+  glm::mat4 view = camera_comp->get_view_matrix();
+  float aspect_ratio =
+      static_cast<float>(screen_width) / static_cast<float>(screen_height);
+  glm::mat4 projection = camera_comp->get_projection_matrix(aspect_ratio);
 
   m_shader->set_mat4("projection", projection);
   m_shader->set_mat4("view", view);
 
   for (const auto &object : scene.get_scene_objects()) {
-    m_shader->set_mat4("model", object->transform->get_transform_matrix());
-    object->mesh->draw(*m_shader);
+    // Only draw objects that have a mesh component
+    if (object->mesh) {
+      m_shader->set_mat4("model", object->transform->get_transform_matrix());
+      object->mesh->draw(*m_shader);
+    }
   }
 }

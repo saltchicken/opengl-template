@@ -1,6 +1,5 @@
 #pragma once
 
-#include "scene/Camera.h"
 #include "scene/SceneObject.h"
 #include <memory>
 #include <vector>
@@ -18,10 +17,10 @@ public:
   // Provides const access to the list of objects for rendering.
   const std::vector<std::shared_ptr<SceneObject>> &get_scene_objects() const;
 
-  // Provides access to the scene's camera.
-  Camera &get_camera();
+  void set_active_camera(std::shared_ptr<SceneObject> camera_object);
+  std::shared_ptr<SceneObject> get_active_camera() const;
 
 private:
   std::vector<std::shared_ptr<SceneObject>> m_scene_objects;
-  Camera m_camera;
+  std::weak_ptr<SceneObject> m_active_camera;
 };
