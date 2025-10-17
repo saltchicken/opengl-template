@@ -26,7 +26,7 @@ bool Renderer::init() {
     return false;
   }
 
-  m_background_mesh = ResourceManager::get_primitive("quad");
+  m_background_quad_mesh = ResourceManager::get_primitive("quad");
 
   std::cout << "Renderer initialized successfully." << std::endl;
   return true;
@@ -42,7 +42,7 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
 
   glDepthMask(GL_FALSE);
   m_background_shader->use();
-  m_background_mesh->draw(*m_background_shader);
+  m_background_quad_mesh->draw(*m_background_shader);
   // Re-enable depth writing for the main scene.
   glDepthMask(GL_TRUE);
 

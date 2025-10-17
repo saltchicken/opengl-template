@@ -18,5 +18,5 @@ public:
 private:
   std::shared_ptr<Shader> m_shader; // Manages the shader's lifetime
   std::shared_ptr<Shader> m_background_shader;
-  std::shared_ptr<Mesh> m_background_mesh;
+  std::shared_ptr<Mesh> m_background_quad_mesh;
 };
