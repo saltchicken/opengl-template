@@ -38,15 +38,18 @@ void Application::run() {
   }
 
   // Create a quad mesh
-  auto quad_mesh = ResourceManager::get_primitive("quad");
+  auto cube_mesh = ResourceManager::get_primitive("cube");
 
   auto my_texture =
       ResourceManager::load_texture("test", "assets/textures/test.png");
   if (my_texture) {
-    quad_mesh->textures.push_back(my_texture);
+    cube_mesh->textures.push_back(my_texture);
   }
   // 2. Create a scene object using the mesh.
-  auto my_object = std::make_shared<SceneObject>(quad_mesh);
+  auto my_object = std::make_shared<SceneObject>(cube_mesh);
+  my_object->transform =
+      glm ::rotate(glm::mat4(1.0f), glm::radians(45.0f),
+                   glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)));
   // You can set its position, rotation, or scale here if you want.
   // For example, to move it right:
   // my_object->transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,

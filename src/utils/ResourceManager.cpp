@@ -65,10 +65,9 @@ std::shared_ptr<Mesh> ResourceManager::get_primitive(const std::string &name) {
   if (m_meshes.find(name) == m_meshes.end()) {
     if (name == "quad") {
       m_meshes[name] = create_quad();
-
-    }
-    // TODO: Add other primitives here...
-    else {
+    } else if (name == "cube") {
+      m_meshes[name] = create_cube();
+    } else {
       std::cerr << "Primitive '" << name << "' not recognized." << std::endl;
       return nullptr;
     }
@@ -95,6 +94,56 @@ std::shared_ptr<Mesh> ResourceManager::create_quad() {
       0, 1, 2, // first triangle
       2, 3, 0  // second triangle
   };
+  std::vector<std::shared_ptr<Texture>> textures;
+  return std::make_shared<Mesh>(vertices, indices, textures);
+}
+
+std::shared_ptr<Mesh> ResourceManager::create_cube() {
+  std::vector<Vertex> vertices = {
+      // positions           // normals           // texture coords
+      // Back face (-Z)
+      {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}}, // 0
+      {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},  // 1
+      {{0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 1.0f}},   // 2
+      {{-0.5f, 0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 1.0f}},  // 3
+      // Front face (+Z)
+      {{-0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // 4
+      {{0.5f, -0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // 5
+      {{0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // 6
+      {{-0.5f, 0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},  // 7
+      // Left face (-X)
+      {{-0.5f, 0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},   // 8
+      {{-0.5f, 0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},  // 9
+      {{-0.5f, -0.5f, -0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}, // 10
+      {{-0.5f, -0.5f, 0.5f}, {-1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},  // 11
+      // Right face (+X)
+      {{0.5f, 0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 0.0f}},   // 12
+      {{0.5f, 0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {1.0f, 1.0f}},  // 13
+      {{0.5f, -0.5f, -0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 1.0f}}, // 14
+      {{0.5f, -0.5f, 0.5f}, {1.0f, 0.0f, 0.0f}, {0.0f, 0.0f}},  // 15
+      // Bottom face (-Y)
+      {{-0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 1.0f}}, // 16
+      {{0.5f, -0.5f, -0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 1.0f}},  // 17
+      {{0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {1.0f, 0.0f}},   // 18
+      {{-0.5f, -0.5f, 0.5f}, {0.0f, -1.0f, 0.0f}, {0.0f, 0.0f}},  // 19
+      // Top face (+Y)
+      {{-0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 1.0f}}, // 20
+      {{0.5f, 0.5f, -0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 1.0f}},  // 21
+      {{0.5f, 0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},   // 22
+      {{-0.5f, 0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}   // 23
+  };
+  std::vector<unsigned int> indices = {// Back face
+                                       0, 1, 2, 2, 3, 0,
+                                       // Front face
+                                       4, 5, 6, 6, 7, 4,
+                                       // Left face
+                                       8, 9, 10, 10, 11, 8,
+                                       // Right face
+                                       12, 13, 14, 14, 15, 12,
+                                       // Bottom face
+                                       16, 17, 18, 18, 19, 16,
+                                       // Top face
+                                       20, 21, 22, 22, 23, 20};
   std::vector<std::shared_ptr<Texture>> textures;
   return std::make_shared<Mesh>(vertices, indices, textures);
 }
