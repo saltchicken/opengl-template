@@ -1,6 +1,7 @@
 #include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
 #include "scene/Scene.h"
+#include "utils/Log.h"
 #include "utils/ResourceManager.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
@@ -49,6 +50,7 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
 
   auto camera_object = scene.get_active_camera();
   if (!camera_object) {
+    Log::error("No active camera object in the scene.");
     return; // No camera, no rendering
   }
 
