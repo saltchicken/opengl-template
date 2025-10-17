@@ -38,6 +38,10 @@ void Application::run() {
     return;
   }
 
+  //
+  // SCENE SETUP
+  // TODO: This needs to be factored out of application.cpp
+
   auto cube_mesh = ResourceManager::get_primitive("cube");
   auto my_texture =
       ResourceManager::load_texture("test", "assets/textures/test.png");
@@ -68,6 +72,28 @@ void Application::run() {
                                                 2.0f, 0.5f});
 
   m_active_scene->add_object(bobbing_object);
+
+  auto multi_anim_object = std::make_shared<SceneObject>(cube_mesh);
+  multi_anim_object->transform->position =
+      glm::vec3(0.0f, -1.5f, 0.0f); // Start it lower down
+
+  // 1. Add the rotation behavior
+  multi_anim_object->add_component<PropertyAnimatorComponent>(
+      PropertyAnimatorComponent::TargetProperty::ROTATION,
+      PropertyAnimatorComponent::RotationParams{glm::vec3(0.0f, 1.0f, 0.0f),
+                                                80.0f});
+
+  // 2. Add the position behavior TO THE SAME OBJECT
+  multi_anim_object->add_component<PropertyAnimatorComponent>(
+      PropertyAnimatorComponent::TargetProperty::POSITION,
+      PropertyAnimatorComponent::PositionParams{glm::vec3(0.0f, 1.0f, 0.0f),
+                                                1.5f, 0.7f});
+
+  m_active_scene->add_object(multi_anim_object);
+
+  //
+  // End SCENE SETUP
+  //
 
   Input *input = m_window->get_input();
   Log::debug("Starting main loop");
