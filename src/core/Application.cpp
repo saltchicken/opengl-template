@@ -4,6 +4,7 @@
 #include "core/Time.h"
 #include "core/Window.h"
 #include "graphics/Renderer.h"
+#include "scene/RotationComponent.h"
 #include "scene/Scene.h"
 #include "scene/SceneObject.h"
 #include "utils/Log.h"
@@ -47,9 +48,8 @@ void Application::run() {
   }
   // 2. Create a scene object using the mesh.
   auto my_object = std::make_shared<SceneObject>(cube_mesh);
-  my_object->transform =
-      glm ::rotate(glm::mat4(1.0f), glm::radians(45.0f),
-                   glm::normalize(glm::vec3(1.0f, 0.0f, 0.0f)));
+  my_object->add_component<RotationComponent>(
+      glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)), 50.0f);
   // You can set its position, rotation, or scale here if you want.
   // For example, to move it right:
   // my_object->transform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f,
@@ -69,6 +69,9 @@ void Application::run() {
     if (!input->process_input(*m_window)) {
       break;
     }
+
+    // Update all object and their components in the scene
+    m_active_scene->update(Time::get_delta_time());
 
     // Render
     m_renderer->update(Time::get_delta_time());

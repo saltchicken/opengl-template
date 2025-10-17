@@ -13,6 +13,8 @@ public:
   // Adds a new object to the scene.
   void add_object(std::shared_ptr<SceneObject> object);
 
+  void update(float delta_time);
+
   // Provides const access to the list of objects for rendering.
   const std::vector<std::shared_ptr<SceneObject>> &get_scene_objects() const;
 
