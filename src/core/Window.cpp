@@ -23,6 +23,22 @@ static void cursor_position_callback(GLFWwindow *window, double xpos,
   EventDispatcher::publish(event);
 }
 
+static void mouse_button_callback(GLFWwindow *window, int button, int action,
+                                  int mods) {
+  switch (action) {
+  case GLFW_PRESS: {
+    MouseButtonPressedEvent event(button);
+    EventDispatcher::publish(event);
+    break;
+  }
+  case GLFW_RELEASE: {
+    MouseButtonReleasedEvent event(button);
+    EventDispatcher::publish(event);
+    break;
+  }
+  }
+}
+
 bool Window::init(unsigned int width, unsigned int height, const char *title,
                   bool resizable, bool transparent) {
   m_width = width;
@@ -61,6 +77,7 @@ bool Window::init(unsigned int width, unsigned int height, const char *title,
   glfwSetKeyCallback(m_window, Input::key_callback);
   glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
   glfwSetCursorPosCallback(m_window, cursor_position_callback);
+  glfwSetMouseButtonCallback(m_window, mouse_button_callback);
 
   // 3. Initialize GLAD
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {

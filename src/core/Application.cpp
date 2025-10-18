@@ -6,6 +6,7 @@
 #include "core/events/AppEvent.h"
 #include "core/events/EventDispatcher.h"
 #include "core/events/KeyEvent.h"
+#include "core/events/MouseEvent.h"
 #include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
@@ -42,6 +43,12 @@ void Application::subscribe_to_events() {
     Log::info("Window resized to: " + std::to_string(event.get_width()) + "x" +
               std::to_string(event.get_height()));
   });
+
+  EventDispatcher::subscribe<MouseButtonPressedEvent>(
+      [](MouseButtonPressedEvent &event) { Log::debug(event.to_string()); });
+
+  EventDispatcher::subscribe<MouseButtonReleasedEvent>(
+      [](MouseButtonReleasedEvent &event) { Log::debug(event.to_string()); });
 }
 
 void Application::on_key_pressed(KeyPressedEvent &event) {
