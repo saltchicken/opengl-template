@@ -11,4 +11,4 @@ fps = 60.0
 
 [fractal]
 denoise_factor = 0.001
-point_alpha = 0.0
+point_alpha = 0.2      # TODO: This has no effect.
