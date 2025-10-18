@@ -11,6 +11,9 @@ layout(std430, binding = 1) readonly buffer PointsBuffer {
     vec4 points[];
 } point_buffer;
 
+// --- NEW: Output to the fragment shader ---
+out float v_point_size;
+
 void main() {
     // Fetch the position for this vertex using its unique ID
     vec4 pos = point_buffer.points[gl_VertexID];
@@ -20,5 +23,6 @@ void main() {
 
     // Make points smaller the further they are from the camera
     float distance = length(gl_Position.xyz);
-    gl_PointSize = 30.0 / distance;
+    v_point_size = 30.0 / distance; // Pass the calculated size
+    gl_PointSize = v_point_size;   // Set the final size
 }

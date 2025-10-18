@@ -45,7 +45,7 @@ void Application::run() {
   auto camera_object = std::make_shared<SceneObject>(nullptr);
   // --- FIX: Pull camera back to see the larger fractal ---
   camera_object->transform->position = glm::vec3(0.0f, 0.0f, 6.0f);
-  camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
+  camera_object->add_component<CameraComponent>(45.0f, 2.0f, 100.0f);
   m_active_scene->add_object(camera_object);
   m_active_scene->set_active_camera(camera_object);
 
@@ -57,7 +57,7 @@ void Application::run() {
   // --- FIX: Adjust scale for the new shape ---
   fractal_object->transform->scale = glm::vec3(3.0f);
 
-  fractal_object->add_component<IfsFractalComponent>(200000, 150);
+  fractal_object->add_component<IfsFractalComponent>(20000, 150);
 
   fractal_object->add_component<PropertyAnimatorComponent>(
       PropertyAnimatorComponent::TargetProperty::ROTATION,

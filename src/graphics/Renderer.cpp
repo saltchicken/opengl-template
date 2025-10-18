@@ -14,8 +14,6 @@ bool Renderer::init(bool transparent_background) {
   m_transparent_background = transparent_background;
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_PROGRAM_POINT_SIZE);
-
-  // --- NEW: Enable blending for transparency ---
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -81,17 +79,21 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
     if (object->mesh) {
       switch (object->mesh->render_mode) {
       case Mesh::RenderMode::POINTS:
-        // --- NEW: Disable depth writing for transparent points ---
         glDepthMask(GL_FALSE);
         m_point_shader->use();
         m_point_shader->set_mat4("projection", projection);
         m_point_shader->set_mat4("view", view);
         m_point_shader->set_mat4("model",
                                  object->transform->get_transform_matrix());
+
+        // --- NEW: Set the max point size uniform ---
+        m_point_shader->set_float(
+            "u_max_point_size",
+            50.0f); // Don't draw points larger than 50 pixels
+
         object->mesh->draw(*m_point_shader);
-        glDepthMask(GL_TRUE); // Re-enable for other objects
+        glDepthMask(GL_TRUE);
         break;
-      //... rest of the cases remain the same
       case Mesh::RenderMode::TRIANGLES:
         if (object->mesh->is_instanced()) {
           m_instanced_shader->use();
