@@ -1,0 +1,45 @@
+#version 430 core
+
+// Define the size of the workgroup. 256 is a common, efficient number.
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+// Input buffer (read-only) containing the original fractal positions
+layout(std430, binding = 0) readonly buffer BaseMatrices {
+    mat4 matrices[];
+} base_matrices;
+
+// Output buffer (write-only) where we'll store the updated positions
+layout(std430, binding = 1) writeonly buffer DynamicMatrices {
+    mat4 matrices[];
+} dynamic_matrices;
+
+// Uniforms passed from our C++ application
+uniform float u_time;
+uniform float u_vibration_amplitude;
+uniform float u_vibration_speed;
+
+void main() {
+    // Get the unique index for this shader invocation (e.g., 0, 1, 2, ..., N)
+    uint id = gl_GlobalInvocationID.x;
+
+    // Boundary check to prevent writing past the end of the buffer
+    // This is important if the number of instances is not a multiple of 256.
+    if (id >= base_matrices.matrices.length()) {
+        return;
+    }
+
+    // --- Perform the vibration calculation ---
+    // Use the instance index 'id' to create a unique phase shift for each sphere.
+    float phase_shift = float(id) * 0.5;
+    float offset_x = sin(u_time * u_vibration_speed + phase_shift) * u_vibration_amplitude;
+    float offset_y = cos(u_time * u_vibration_speed * 1.2 + phase_shift) * u_vibration_amplitude;
+    float offset_z = sin(u_time * u_vibration_speed * 0.8 + phase_shift) * u_vibration_amplitude;
+
+    // Create a translation matrix for the vibration
+    mat4 vibration_transform = mat4(1.0);
+    vibration_transform[3].xyz = vec3(offset_x, offset_y, offset_z);
+
+    // Read the base matrix, apply the vibration, and write to the dynamic buffer
+    mat4 base_matrix = base_matrices.matrices[id];
+    dynamic_matrices.matrices[id] = vibration_transform * base_matrix;
+}

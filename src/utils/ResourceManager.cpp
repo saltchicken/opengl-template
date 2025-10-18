@@ -18,10 +18,27 @@ ResourceManager::load_shader(const std::string &name,
       auto shader = std::make_shared<Shader>(v_shader_file, f_shader_file);
       m_shaders[name] = shader;
       return shader;
-
     } catch (const std::exception &e) {
       std::cerr << "Failed to load shader '" << name << "': " << e.what()
                 << std::endl;
+      return nullptr;
+    }
+  }
+  return m_shaders[name];
+}
+
+// --- NEW METHOD IMPLEMENTATION ---
+std::shared_ptr<Shader>
+ResourceManager::load_compute_shader(const std::string &name,
+                                     const std::string &c_shader_file) {
+  if (m_shaders.find(name) == m_shaders.end()) {
+    try {
+      auto shader = std::make_shared<Shader>(c_shader_file);
+      m_shaders[name] = shader;
+      return shader;
+    } catch (const std::exception &e) {
+      std::cerr << "Failed to load compute shader '" << name
+                << "': " << e.what() << std::endl;
       return nullptr;
     }
   }
@@ -77,6 +94,19 @@ std::shared_ptr<Mesh> ResourceManager::get_primitive(const std::string &name) {
   return m_meshes[name];
 }
 
+// --- NEW METHOD IMPLEMENTATION ---
+// This allows each SceneObject to have its own unique Mesh instance,
+// which is necessary for managing instance-specific buffers.
+std::shared_ptr<Mesh>
+ResourceManager::create_primitive_instance(const std::string &name) {
+  auto source_mesh = get_primitive(name);
+  if (source_mesh) {
+    // Use the copy constructor to create a new mesh with the same vertex data
+    return std::make_shared<Mesh>(*source_mesh);
+  }
+  return nullptr;
+}
+
 void ResourceManager::clear() {
   // The smart pointers will handle the deletion of the OpenGL objects
   m_shaders.clear();
@@ -84,14 +114,16 @@ void ResourceManager::clear() {
   m_meshes.clear();
 }
 
+// create_quad, create_cube, create_sphere remain unchanged
 std::shared_ptr<Mesh> ResourceManager::create_quad() {
   std::vector<Vertex> vertices = {
-      // positions            // normals           // texture coords
+      // positions           // normals          // texture coords
       {{-0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 0.0f}}, // bottom left
       {{0.5f, -0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},  // bottom right
       {{0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {1.0f, 1.0f}},   // top right
       {{-0.5f, 0.5f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.0f, 1.0f}}   // top left
   };
+
   std::vector<unsigned int> indices = {
       0, 1, 2, // first triangle
       2, 3, 0  // second triangle
@@ -99,10 +131,9 @@ std::shared_ptr<Mesh> ResourceManager::create_quad() {
   std::vector<std::shared_ptr<Texture>> textures;
   return std::make_shared<Mesh>(vertices, indices, textures);
 }
-
 std::shared_ptr<Mesh> ResourceManager::create_cube() {
   std::vector<Vertex> vertices = {
-      // positions           // normals           // texture coords
+      // positions          // normals          // texture coords
       // Back face (-Z)
       {{-0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {0.0f, 0.0f}}, // 0
       {{0.5f, -0.5f, -0.5f}, {0.0f, 0.0f, -1.0f}, {1.0f, 0.0f}},  // 1
@@ -134,6 +165,7 @@ std::shared_ptr<Mesh> ResourceManager::create_cube() {
       {{0.5f, 0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {1.0f, 0.0f}},   // 22
       {{-0.5f, 0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}, {0.0f, 0.0f}}   // 23
   };
+
   std::vector<unsigned int> indices = {// Back face
                                        0, 1, 2, 2, 3, 0,
                                        // Front face
@@ -149,13 +181,14 @@ std::shared_ptr<Mesh> ResourceManager::create_cube() {
   std::vector<std::shared_ptr<Texture>> textures;
   return std::make_shared<Mesh>(vertices, indices, textures);
 }
-
 std::shared_ptr<Mesh> ResourceManager::create_sphere() {
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
+
   const unsigned int X_SEGMENTS = 64;
   const unsigned int Y_SEGMENTS = 64;
   const float PI = 3.14159265359f;
+
   for (unsigned int y = 0; y <= Y_SEGMENTS; ++y) {
     for (unsigned int x = 0; x <= X_SEGMENTS; ++x) {
       float x_segment = (float)x / (float)X_SEGMENTS;
@@ -163,6 +196,7 @@ std::shared_ptr<Mesh> ResourceManager::create_sphere() {
       float x_pos = std::cos(x_segment * 2.0f * PI) * std::sin(y_segment * PI);
       float y_pos = std::cos(y_segment * PI);
       float z_pos = std::sin(x_segment * 2.0f * PI) * std::sin(y_segment * PI);
+
       Vertex vertex;
       vertex.Position = {x_pos, y_pos, z_pos};
       vertex.TexCoords = {x_segment, y_segment};
@@ -170,6 +204,7 @@ std::shared_ptr<Mesh> ResourceManager::create_sphere() {
       vertices.push_back(vertex);
     }
   }
+
   for (unsigned int y = 0; y < Y_SEGMENTS; ++y) {
     for (unsigned int x = 0; x < X_SEGMENTS; ++x) {
       indices.push_back(y * (X_SEGMENTS + 1) + x);
@@ -180,6 +215,7 @@ std::shared_ptr<Mesh> ResourceManager::create_sphere() {
       indices.push_back(y * (X_SEGMENTS + 1) + x + 1);
     }
   }
+
   std::vector<std::shared_ptr<Texture>> textures;
   return std::make_shared<Mesh>(vertices, indices, textures);
 }

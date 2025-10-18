@@ -5,6 +5,7 @@
 #include "core/Window.h"
 #include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
+#include "scene/FractalComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
 #include "scene/SceneObject.h"
@@ -44,71 +45,44 @@ void Application::run() {
   // SCENE SETUP
   // TODO: This needs to be factored out of application.cpp
 
-  auto camera_object = std::make_shared<SceneObject>(nullptr); // No mesh needed
-  camera_object->transform->position =
-      glm::vec3(0.0f, 0.0f, 5.0f); // Position it
+  auto camera_object = std::make_shared<SceneObject>(nullptr);
+  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 20.0f);
   camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
-
-  // 2. Add it to the scene and set it as the active camera
   m_active_scene->add_object(camera_object);
   m_active_scene->set_active_camera(camera_object);
 
-  auto cube_mesh = ResourceManager::get_primitive("cube");
+  // --- FIX: Assign a texture to the fractal spheres ---
+  // 1. Load a texture
   auto my_texture =
       ResourceManager::load_texture("test", "assets/textures/test.png");
+
+  // 2. Create a single sphere mesh instance that will be used for all fractal
+  // spheres
+  auto sphere_mesh_instance =
+      ResourceManager::create_primitive_instance("sphere");
+
+  // 3. Add the texture to the mesh's texture list
   if (my_texture) {
-    cube_mesh->textures.push_back(my_texture);
+    sphere_mesh_instance->textures.push_back(my_texture);
   }
+  // --- END FIX ---
 
-  // Create a quad mesh
-  auto rotating_object = std::make_shared<SceneObject>(cube_mesh);
-  rotating_object->transform->position = glm::vec3(-1.5f, 0.0f, 0.0f);
+  // 4. Create the SceneObject that will host the fractal
+  auto fractal_object = std::make_shared<SceneObject>(sphere_mesh_instance);
+  fractal_object->transform->scale = glm::vec3(2.5f);
 
-  // Use the new component to add rotation behavior
-  rotating_object->add_component<PropertyAnimatorComponent>(
+  // 5. Add the FractalComponent to generate and animate the spheres on the GPU
+  //    Format: (depth, scale_multiplier, vibration_amplitude, vibration_speed)
+  fractal_object->add_component<FractalComponent>(3, 0.5f, 0.04f, 4.0f);
+
+  // 6. (Optional) Add an animator to make the whole fractal rotate
+  fractal_object->add_component<PropertyAnimatorComponent>(
       PropertyAnimatorComponent::TargetProperty::ROTATION,
-      PropertyAnimatorComponent::RotationParams{
-          glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)), 50.0f});
+      PropertyAnimatorComponent::RotationParams{glm::vec3(0.5f, 1.0f, 0.0f),
+                                                10.0f});
 
-  m_active_scene->add_object(rotating_object);
-
-  // === Object 2: The Bobbing Cube ===
-  auto bobbing_object = std::make_shared<SceneObject>(cube_mesh);
-  bobbing_object->transform->position = glm::vec3(1.5f, 0.0f, 0.0f);
-
-  // Use the same component to add position behavior (bobbing up and down)
-  bobbing_object->add_component<PropertyAnimatorComponent>(
-      PropertyAnimatorComponent::TargetProperty::POSITION,
-      PropertyAnimatorComponent::PositionParams{glm::vec3(0.0f, 1.0f, 0.0f),
-                                                2.0f, 0.5f});
-
-  m_active_scene->add_object(bobbing_object);
-
-  auto multi_anim_object = std::make_shared<SceneObject>(cube_mesh);
-  multi_anim_object->transform->position =
-      glm::vec3(0.0f, -1.5f, 0.0f); // Start it lower down
-
-  // 1. Add the rotation behavior
-  multi_anim_object->add_component<PropertyAnimatorComponent>(
-      PropertyAnimatorComponent::TargetProperty::ROTATION,
-      PropertyAnimatorComponent::RotationParams{glm::vec3(0.0f, 1.0f, 0.0f),
-                                                80.0f});
-
-  // 2. Add the position behavior TO THE SAME OBJECT
-  multi_anim_object->add_component<PropertyAnimatorComponent>(
-      PropertyAnimatorComponent::TargetProperty::POSITION,
-      PropertyAnimatorComponent::PositionParams{glm::vec3(0.0f, 1.0f, 0.0f),
-                                                1.5f, 0.7f});
-
-  m_active_scene->add_object(multi_anim_object);
-
-  auto sphere_mesh = ResourceManager::get_primitive("sphere");
-  if (my_texture) {
-    sphere_mesh->textures.push_back(my_texture);
-  }
-  auto sphere_object = std::make_shared<SceneObject>(sphere_mesh);
-  sphere_object->transform->position = glm::vec3(0.0f, 1.5f, 0.0f);
-  m_active_scene->add_object(sphere_object);
+  // 7. Add the single host object to the scene
+  m_active_scene->add_object(fractal_object);
   //
   // End SCENE SETUP
   //

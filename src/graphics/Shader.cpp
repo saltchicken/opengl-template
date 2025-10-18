@@ -23,6 +23,7 @@ std::string load_shader_source(const std::string &filepath) {
 }
 } // namespace
 
+// --- EXISTING CONSTRUCTOR FOR VERTEX/FRAGMENT SHADERS ---
 Shader::Shader(const std::string &vertex_path,
                const std::string &fragment_path) {
   std::string vertex_code = load_shader_source(vertex_path);
@@ -56,6 +57,24 @@ Shader::Shader(const std::string &vertex_path,
   // necessary
   glDeleteShader(vertex);
   glDeleteShader(fragment);
+}
+
+// --- NEW CONSTRUCTOR FOR COMPUTE SHADERS ---
+Shader::Shader(const std::string &compute_path) {
+  std::string compute_code_str = load_shader_source(compute_path);
+  const char *compute_code = compute_code_str.c_str();
+
+  unsigned int compute_shader = glCreateShader(GL_COMPUTE_SHADER);
+  glShaderSource(compute_shader, 1, &compute_code, NULL);
+  glCompileShader(compute_shader);
+  check_compile_errors(compute_shader, "COMPUTE");
+
+  m_id = glCreateProgram();
+  glAttachShader(m_id, compute_shader);
+  glLinkProgram(m_id);
+  check_compile_errors(m_id, "PROGRAM");
+
+  glDeleteShader(compute_shader);
 }
 
 Shader::~Shader() {
@@ -114,10 +133,13 @@ int Shader::get_uniform_location(const std::string &name) const {
   if (m_uniform_location_cache.find(name) != m_uniform_location_cache.end()) {
     return m_uniform_location_cache[name];
   }
+
   // If not, query OpenGL for the location
   int location = glGetUniformLocation(m_id, name.c_str());
   if (location == -1) {
-    std::cerr << "Warning: uniform '" << name << "' not found!" << std::endl;
+    // Log as debug because this can happen if GLSL compiler optimizes out a
+    // uniform std::cerr << "Warning: uniform '" << name << "' not found!" <<
+    // std::endl;
   }
   // Cache the location for future use
   m_uniform_location_cache[name] = location;
@@ -128,27 +150,21 @@ int Shader::get_uniform_location(const std::string &name) const {
 void Shader::set_bool(const std::string &name, bool value) {
   glUniform1i(get_uniform_location(name), (int)value);
 }
-
 void Shader::set_int(const std::string &name, int value) {
   glUniform1i(get_uniform_location(name), value);
 }
-
 void Shader::set_float(const std::string &name, float value) {
   glUniform1f(get_uniform_location(name), value);
 }
-
 void Shader::set_vec2(const std::string &name, const glm::vec2 &value) {
   glUniform2fv(get_uniform_location(name), 1, &value[0]);
 }
-
 void Shader::set_vec3(const std::string &name, const glm::vec3 &value) {
   glUniform3fv(get_uniform_location(name), 1, &value[0]);
 }
-
 void Shader::set_vec4(const std::string &name, const glm::vec4 &value) {
   glUniform4fv(get_uniform_location(name), 1, &value[0]);
 }
-
 void Shader::set_mat4(const std::string &name, const glm::mat4 &mat) {
   glUniformMatrix4fv(get_uniform_location(name), 1, GL_FALSE, &mat[0][0]);
 }

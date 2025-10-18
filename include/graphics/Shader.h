@@ -9,6 +9,7 @@
 class Shader {
 public:
   Shader(const std::string &vertex_path, const std::string &fragment_path);
+  Shader(const std::string &compute_path);
   ~Shader();
 
   // Disable copying

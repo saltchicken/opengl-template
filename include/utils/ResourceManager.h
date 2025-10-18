@@ -16,6 +16,11 @@ public:
   static std::shared_ptr<Shader> load_shader(const std::string &name,
                                              const std::string &v_shader_file,
                                              const std::string &f_shader_file);
+  // NEW: load_compute_shader
+  static std::shared_ptr<Shader>
+  load_compute_shader(const std::string &name,
+                      const std::string &c_shader_file);
+
   static std::shared_ptr<Shader> get_shader(const std::string &name);
 
   // Textures
@@ -25,6 +30,9 @@ public:
 
   // Meshes
   static std::shared_ptr<Mesh> get_primitive(const std::string &name);
+  // NEW: create_primitive_instance
+  static std::shared_ptr<Mesh>
+  create_primitive_instance(const std::string &name);
 
   // Clears all stored resources
   static void clear();

@@ -1,4 +1,5 @@
 #pragma once
+
 #include <memory>
 
 class Shader;
@@ -16,9 +17,9 @@ public:
             unsigned int screen_height);
 
 private:
-  std::shared_ptr<Shader> m_shader; // Manages the shader's lifetime
+  std::shared_ptr<Shader> m_shader;
+  std::shared_ptr<Shader> m_instanced_shader;
   std::shared_ptr<Shader> m_background_shader;
   std::shared_ptr<Mesh> m_background_quad_mesh;
-
   bool m_transparent_background;
 };

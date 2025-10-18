@@ -19,14 +19,22 @@ bool Renderer::init(bool transparent_background) {
   } else {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
   }
-  // 1. Create the shader program using our Shader class
+
   m_shader = ResourceManager::load_shader("default", "shaders/shader.vert",
                                           "shaders/shader.frag");
-
   if (!m_shader) {
     std::cerr << "Failed to load default shader." << std::endl;
     return false;
   }
+
+  // --- NEW: Load the instanced shader ---
+  m_instanced_shader = ResourceManager::load_shader(
+      "instanced", "shaders/shader_instanced.vert", "shaders/shader.frag");
+  if (!m_instanced_shader) {
+    std::cerr << "Failed to load instanced shader." << std::endl;
+    return false;
+  }
+  // --- END NEW ---
 
   if (!m_transparent_background) {
     m_background_shader = ResourceManager::load_shader(
@@ -54,39 +62,42 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
     glDepthMask(GL_FALSE);
     m_background_shader->use();
     m_background_quad_mesh->draw(*m_background_shader);
-    // Re-enable depth writing for the main scene.
     glDepthMask(GL_TRUE);
   }
 
   auto camera_object = scene.get_active_camera();
   if (!camera_object) {
-    Log::error("No active camera object in the scene.");
-    return; // No camera, no rendering
-  }
-
-  // 2. Get the required components from the camera object
-  auto camera_comp = camera_object->get_component<CameraComponent>();
-  if (!camera_comp) {
-    Log::error("Active camera object is missing its CameraComponent.");
     return;
   }
-
-  // Use the shader and draw the triangle
-  m_shader->use();
+  auto camera_comp = camera_object->get_component<CameraComponent>();
+  if (!camera_comp) {
+    return;
+  }
 
   glm::mat4 view = camera_comp->get_view_matrix();
   float aspect_ratio =
       static_cast<float>(screen_width) / static_cast<float>(screen_height);
   glm::mat4 projection = camera_comp->get_projection_matrix(aspect_ratio);
 
-  m_shader->set_mat4("projection", projection);
-  m_shader->set_mat4("view", view);
-
+  // --- UPDATE: Render loop with shader switching ---
   for (const auto &object : scene.get_scene_objects()) {
-    // Only draw objects that have a mesh component
     if (object->mesh) {
-      m_shader->set_mat4("model", object->transform->get_transform_matrix());
-      object->mesh->draw(*m_shader);
+      if (object->mesh->is_instanced()) {
+        // Use the instanced shader
+        m_instanced_shader->use();
+        m_instanced_shader->set_mat4("projection", projection);
+        m_instanced_shader->set_mat4("view", view);
+        m_instanced_shader->set_mat4("model",
+                                     object->transform->get_transform_matrix());
+        object->mesh->draw(*m_instanced_shader);
+      } else {
+        // Use the regular shader for single objects
+        m_shader->use();
+        m_shader->set_mat4("projection", projection);
+        m_shader->set_mat4("view", view);
+        m_shader->set_mat4("model", object->transform->get_transform_matrix());
+        object->mesh->draw(*m_shader);
+      }
     }
   }
 }
