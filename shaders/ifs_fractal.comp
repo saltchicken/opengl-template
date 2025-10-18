@@ -2,26 +2,25 @@
 
 layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
 
-// Struct must match the C++ version
 struct AffineTransform {
     mat4 matrix;
 };
 
-// Input: The fractal rules
 layout(std430, binding = 0) readonly buffer TransformsBuffer {
     AffineTransform transforms[];
 } transform_buffer;
 
-// Output: The final point positions
 layout(std430, binding = 1) writeonly buffer PointsBuffer {
     vec4 points[];
 } point_buffer;
 
 uniform float u_time;
 uniform int u_iterations;
+uniform float u_twist_strength;
+uniform float u_spiral_strength;
+// --- NEW: Uniform to control the spherical variation strength ---
+uniform float u_spherical_strength;
 
-// A simple pseudo-random number generator (hash function)
-// It produces a float between 0.0 and 1.0
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
 }
@@ -32,7 +31,6 @@ void main() {
         return;
     }
 
-    // Start with a random point inside a [-1, 1] cube
     vec2 seed = vec2(id, u_time);
     vec4 current_pos = vec4(random(seed) * 2.0 - 1.0, 
                             random(seed.yx) * 2.0 - 1.0, 
@@ -40,20 +38,39 @@ void main() {
     
     int num_transforms = transform_buffer.transforms.length();
 
-    // The "Chaos Game"
     for (int i = 0; i < u_iterations; ++i) {
-        // Get a random integer index to pick a transform
+        // --- STEP 1: LINEAR transform ---
         float rand = random(current_pos.xy + seed);
         int transform_index = int(rand * num_transforms);
-
-        // Apply the randomly chosen transform
         mat4 transform_matrix = transform_buffer.transforms[transform_index].matrix;
         current_pos = transform_matrix * current_pos;
 
-        // update seed to get new random number next iteration
+        // --- STEP 2: NON-LINEAR SPIRAL transform ---
+        float dist_from_center = length(current_pos.xz);
+        float twist_angle = dist_from_center * u_twist_strength;
+        float s = sin(twist_angle);
+        float c = cos(twist_angle);
+        mat4 spiral_rotation = mat4(c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1);
+        current_pos = spiral_rotation * current_pos;
+        current_pos.xz *= u_spiral_strength;
+        current_pos.y *= 0.95; 
+
+        // --- STEP 3: NEW NON-LINEAR SPHERICAL VARIATION ---
+        // Calculate the squared distance from the origin
+        float r2 = dot(current_pos.xyz, current_pos.xyz);
+        
+        // Avoid division by zero if the point is at the origin
+        if (r2 < 1.0e-6) r2 = 1.0e-6;
+
+        // The spherical variation formula: p_new = p_old / r^2
+        vec4 spherical_pos = vec4(current_pos.xyz / r2, 1.0);
+
+        // Blend between the position *before* the variation and the *after* position
+        // A strength of 0.0 does nothing, 1.0 applies it fully.
+        current_pos = mix(current_pos, spherical_pos, u_spherical_strength);
+
         seed += 0.1;
     }
 
-    // Write the final position to the output buffer
     point_buffer.points[id] = current_pos;
 }

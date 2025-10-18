@@ -5,7 +5,7 @@
 #include "core/Window.h"
 #include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
-#include "scene/IfsFractalComponent.h" // <-- NEW
+#include "scene/IfsFractalComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
 #include "scene/SceneObject.h"
@@ -43,25 +43,22 @@ void Application::run() {
   // SCENE SETUP
   //
   auto camera_object = std::make_shared<SceneObject>(nullptr);
-  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 4.0f);
+  // --- FIX: Pull camera back to see the larger fractal ---
+  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 6.0f);
   camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
   m_active_scene->add_object(camera_object);
   m_active_scene->set_active_camera(camera_object);
 
-  // 1. Create a "dummy" mesh. It's just a container for the render mode and
-  // point count.
-  // The vertex/index vectors are empty.
   auto point_cloud_mesh =
       std::make_shared<Mesh>(std::vector<Vertex>{}, std::vector<unsigned int>{},
                              std::vector<std::shared_ptr<Texture>>{});
 
-  // 2. Create the SceneObject
   auto fractal_object = std::make_shared<SceneObject>(point_cloud_mesh);
+  // --- FIX: Adjust scale for the new shape ---
+  fractal_object->transform->scale = glm::vec3(3.0f);
 
-  // 3. Add the component to generate and manage the point cloud on the GPU
   fractal_object->add_component<IfsFractalComponent>(200000, 150);
 
-  // 4. Add an animator to make the whole fractal rotate
   fractal_object->add_component<PropertyAnimatorComponent>(
       PropertyAnimatorComponent::TargetProperty::ROTATION,
       PropertyAnimatorComponent::RotationParams{glm::vec3(0.0f, 1.0f, 0.0f),

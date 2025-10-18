@@ -13,8 +13,11 @@ Renderer::~Renderer() = default;
 bool Renderer::init(bool transparent_background) {
   m_transparent_background = transparent_background;
   glEnable(GL_DEPTH_TEST);
-  // --- NEW: Enable point size control in vertex shader ---
   glEnable(GL_PROGRAM_POINT_SIZE);
+
+  // --- NEW: Enable blending for transparency ---
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   if (m_transparent_background) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -32,7 +35,6 @@ bool Renderer::init(bool transparent_background) {
   if (!m_instanced_shader)
     return false;
 
-  // --- NEW: Load point rendering shaders ---
   m_point_shader = ResourceManager::load_shader("points", "shaders/points.vert",
                                                 "shaders/points.frag");
   if (!m_point_shader)
@@ -75,19 +77,21 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
       static_cast<float>(screen_width) / static_cast<float>(screen_height);
   glm::mat4 projection = camera_comp->get_projection_matrix(aspect_ratio);
 
-  // --- UPDATE: Render loop with logic for all three modes ---
   for (const auto &object : scene.get_scene_objects()) {
     if (object->mesh) {
       switch (object->mesh->render_mode) {
       case Mesh::RenderMode::POINTS:
+        // --- NEW: Disable depth writing for transparent points ---
+        glDepthMask(GL_FALSE);
         m_point_shader->use();
         m_point_shader->set_mat4("projection", projection);
         m_point_shader->set_mat4("view", view);
         m_point_shader->set_mat4("model",
                                  object->transform->get_transform_matrix());
         object->mesh->draw(*m_point_shader);
+        glDepthMask(GL_TRUE); // Re-enable for other objects
         break;
-
+      //... rest of the cases remain the same
       case Mesh::RenderMode::TRIANGLES:
         if (object->mesh->is_instanced()) {
           m_instanced_shader->use();
