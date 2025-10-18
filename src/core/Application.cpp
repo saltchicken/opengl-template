@@ -157,6 +157,10 @@ void Application::run() {
 
     m_window->poll_events();
 
+    EventDispatcher::dispatch_events();
+    if (m_window->should_close()) {
+      continue;
+    }
     // Update all object and their components in the scene
     m_active_scene->update(delta_time);
 

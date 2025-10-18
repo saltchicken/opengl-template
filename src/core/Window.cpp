@@ -19,21 +19,21 @@ Window::~Window() {
 
 static void cursor_position_callback(GLFWwindow *window, double xpos,
                                      double ypos) {
-  MouseMovedEvent event(static_cast<float>(xpos), static_cast<float>(ypos));
-  EventDispatcher::publish(event);
+  EventDispatcher::queue_event(std::make_unique<MouseMovedEvent>(
+      static_cast<float>(xpos), static_cast<float>(ypos)));
 }
 
 static void mouse_button_callback(GLFWwindow *window, int button, int action,
                                   int mods) {
   switch (action) {
   case GLFW_PRESS: {
-    MouseButtonPressedEvent event(button);
-    EventDispatcher::publish(event);
+    EventDispatcher::queue_event(
+        std::make_unique<MouseButtonPressedEvent>(button));
     break;
   }
   case GLFW_RELEASE: {
-    MouseButtonReleasedEvent event(button);
-    EventDispatcher::publish(event);
+    EventDispatcher::queue_event(
+        std::make_unique<MouseButtonReleasedEvent>(button));
     break;
   }
   }
@@ -108,8 +108,8 @@ void Window::poll_events() { glfwPollEvents(); }
 void Window::framebuffer_size_callback(GLFWwindow *window, int width,
                                        int height) {
   // Publish the event
-  WindowResizeEvent event(width, height);
-  EventDispatcher::publish(event);
+  EventDispatcher::queue_event(
+      std::make_unique<WindowResizeEvent>(width, height));
 
   // Retrieve the Window instance that owns this GLFWwindow
   Window *window_instance =

@@ -15,11 +15,9 @@ void Input::update() {
 void Input::key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
   if (action == GLFW_PRESS) {
-    KeyPressedEvent event(key);
-    EventDispatcher::publish(event);
+    EventDispatcher::queue_event(std::make_unique<KeyPressedEvent>(key));
   } else if (action == GLFW_RELEASE) {
-    KeyReleasedEvent event(key);
-    EventDispatcher::publish(event);
+    EventDispatcher::queue_event(std::make_unique<KeyReleasedEvent>(key));
   }
 
   // The rest of this function can remain to update the internal state for

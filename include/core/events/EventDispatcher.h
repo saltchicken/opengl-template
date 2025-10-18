@@ -2,6 +2,7 @@
 
 #include "core/events/Event.h"
 #include <functional>
+#include <memory>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
@@ -27,23 +28,13 @@ public:
     s_subscribers[type_index].push_back(wrapper);
   }
 
-  // Publishes an event to all subscribed listeners.
-  static void publish(Event &event) {
-    // Get the type index for the event's actual runtime type.
-    std::type_index type_index(typeid(event));
-
-    // If there are any subscribers for this event type...
-    if (s_subscribers.count(type_index)) {
-      // ...call each of them.
-      for (auto &callback : s_subscribers.at(type_index)) {
-        callback(event);
-        // Optional: If an event is "handled", we can stop propagating it.
-        if (event.handled) {
-          break;
-        }
-      }
-    }
+  // Queues an event for later processing.
+  static void queue_event(std::unique_ptr<Event> event) {
+    s_event_queue.push_back(std::move(event));
   }
+
+  // Dispatches all queued events to subscribers.
+  static void dispatch_events();
 
 private:
   // A map from an event's type_index to a vector of listener functions.
@@ -51,4 +42,7 @@ private:
   static std::unordered_map<std::type_index,
                             std::vector<std::function<void(Event &)>>>
       s_subscribers;
+
+  // A queue of events to be dispatched.
+  static std::vector<std::unique_ptr<Event>> s_event_queue;
 };
