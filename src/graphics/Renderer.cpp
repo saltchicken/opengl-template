@@ -1,4 +1,5 @@
 #include "graphics/Renderer.h"
+#include "audio/AudioEngine.h" // Include the audio engine
 #include "scene/CameraComponent.h"
 #include "scene/Scene.h"
 #include "utils/Log.h"
@@ -8,6 +9,7 @@
 #include <iostream>
 
 Renderer::Renderer() = default;
+
 Renderer::~Renderer() = default;
 
 bool Renderer::init(bool transparent_background) {
@@ -19,10 +21,10 @@ bool Renderer::init(bool transparent_background) {
   } else {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
   }
+
   // 1. Create the shader program using our Shader class
   m_shader = ResourceManager::load_shader("default", "shaders/shader.vert",
                                           "shaders/shader.frag");
-
   if (!m_shader) {
     std::cerr << "Failed to load default shader." << std::endl;
     return false;
@@ -53,7 +55,14 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
   if (!m_transparent_background) {
     glDepthMask(GL_FALSE);
     m_background_shader->use();
+
+    // Bind the FFT texture to texture unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_1D, AudioEngine::get_fft_texture());
+    m_background_shader->set_int("u_fft_texture", 0);
+
     m_background_quad_mesh->draw(*m_background_shader);
+
     // Re-enable depth writing for the main scene.
     glDepthMask(GL_TRUE);
   }
@@ -63,7 +72,6 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
     Log::error("No active camera object in the scene.");
     return; // No camera, no rendering
   }
-
   // 2. Get the required components from the camera object
   auto camera_comp = camera_object->get_component<CameraComponent>();
   if (!camera_comp) {
@@ -73,12 +81,10 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
 
   // Use the shader and draw the triangle
   m_shader->use();
-
   glm::mat4 view = camera_comp->get_view_matrix();
   float aspect_ratio =
       static_cast<float>(screen_width) / static_cast<float>(screen_height);
   glm::mat4 projection = camera_comp->get_projection_matrix(aspect_ratio);
-
   m_shader->set_mat4("projection", projection);
   m_shader->set_mat4("view", view);
 
