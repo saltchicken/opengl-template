@@ -3,6 +3,10 @@
 #include "core/Settings.h"
 #include "core/Time.h"
 #include "core/Window.h"
+#include "core/events/AppEvent.h"
+#include "core/events/EventDispatcher.h"
+#include "core/events/KeyEvent.h"
+#include "core/events/MouseEvent.h"
 #include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
 #include "scene/IfsFractalComponent.h"
@@ -19,9 +23,42 @@ Application::Application() {
   m_settings = std::make_unique<Settings>();
   m_renderer = std::make_unique<Renderer>();
   m_active_scene = std::make_unique<Scene>();
+
+  subscribe_to_events();
 }
 
 Application::~Application() { ResourceManager::clear(); };
+
+void Application::subscribe_to_events() {
+  // CHANGE: Simply push the returned ScopedSubscription object into the vector.
+  m_subscriptions.push_back(EventDispatcher::subscribe<KeyPressedEvent>(
+      std::bind(&Application::on_key_pressed, this, std::placeholders::_1)));
+
+  m_subscriptions.push_back(EventDispatcher::subscribe<KeyReleasedEvent>(
+      [](KeyReleasedEvent &event) { Log::debug(event.to_string()); }));
+
+  m_subscriptions.push_back(EventDispatcher::subscribe<WindowResizeEvent>(
+      [](WindowResizeEvent &event) {
+        Log::info("Window resized to: " + std::to_string(event.get_width()) +
+                  "x" + std::to_string(event.get_height()));
+      }));
+
+  m_subscriptions.push_back(EventDispatcher::subscribe<MouseButtonPressedEvent>(
+      [](MouseButtonPressedEvent &event) { Log::debug(event.to_string()); }));
+
+  m_subscriptions.push_back(
+      EventDispatcher::subscribe<MouseButtonReleasedEvent>(
+          [](MouseButtonReleasedEvent &event) {
+            Log::debug(event.to_string());
+          }));
+}
+
+void Application::on_key_pressed(KeyPressedEvent &event) {
+  Log::debug(event.to_string());
+  if (event.get_key_code() == GLFW_KEY_ESCAPE) {
+    m_window->set_should_close(true);
+  }
+}
 
 void Application::run() {
   m_settings->load("settings.toml");
@@ -77,10 +114,11 @@ void Application::run() {
     double delta_time = Time::get_delta_time();
     m_window->poll_events();
 
-    if (!input->process_input(*m_window)) {
-      break;
+    EventDispatcher::dispatch_events();
+    if (m_window->should_close()) {
+      continue;
     }
-
+    // Update all object and their components in the scene
     m_active_scene->update(delta_time);
 
     m_renderer->update(delta_time);

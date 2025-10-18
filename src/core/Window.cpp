@@ -1,5 +1,8 @@
 #include "core/Window.h"
 #include "core/Input.h"
+#include "core/events/AppEvent.h"
+#include "core/events/EventDispatcher.h"
+#include "core/events/MouseEvent.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>
@@ -12,6 +15,28 @@ Window::~Window() {
   }
   glfwTerminate();
   std::cout << "Window destroyed and GLFW terminated." << std::endl;
+}
+
+static void cursor_position_callback(GLFWwindow *window, double xpos,
+                                     double ypos) {
+  EventDispatcher::queue_event(std::make_unique<MouseMovedEvent>(
+      static_cast<float>(xpos), static_cast<float>(ypos)));
+}
+
+static void mouse_button_callback(GLFWwindow *window, int button, int action,
+                                  int mods) {
+  switch (action) {
+  case GLFW_PRESS: {
+    EventDispatcher::queue_event(
+        std::make_unique<MouseButtonPressedEvent>(button));
+    break;
+  }
+  case GLFW_RELEASE: {
+    EventDispatcher::queue_event(
+        std::make_unique<MouseButtonReleasedEvent>(button));
+    break;
+  }
+  }
 }
 
 bool Window::init(unsigned int width, unsigned int height, const char *title,
@@ -51,6 +76,8 @@ bool Window::init(unsigned int width, unsigned int height, const char *title,
 
   glfwSetKeyCallback(m_window, Input::key_callback);
   glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+  glfwSetCursorPosCallback(m_window, cursor_position_callback);
+  glfwSetMouseButtonCallback(m_window, mouse_button_callback);
 
   // 3. Initialize GLAD
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -80,11 +107,15 @@ void Window::poll_events() { glfwPollEvents(); }
 // This static function acts as a bridge
 void Window::framebuffer_size_callback(GLFWwindow *window, int width,
                                        int height) {
+  // Publish the event
+  EventDispatcher::queue_event(
+      std::make_unique<WindowResizeEvent>(width, height));
+
   // Retrieve the Window instance that owns this GLFWwindow
   Window *window_instance =
       static_cast<Window *>(glfwGetWindowUserPointer(window));
   if (window_instance) {
-    // Call the instance-specific resize handler
+    // The instance can still update its internal state if needed
     window_instance->on_resize(width, height);
   }
 }

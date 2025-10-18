@@ -1,5 +1,7 @@
 #include "core/Input.h"
 #include "core/Window.h"
+#include "core/events/EventDispatcher.h"
+#include "core/events/KeyEvent.h"
 #include <cstring>
 
 Input::Input(GLFWwindow *window) : m_window(window) {}
@@ -9,20 +11,18 @@ void Input::update() {
          sizeof(m_current_key_states));
 }
 
-bool Input::process_input(Window &window) {
-  if (window.should_close()) {
-    return false;
-  }
-  if (is_key_down(GLFW_KEY_ESCAPE)) {
-    return false;
-  }
-  // Add other input handling here
-  return true;
-}
-
 // Static callback that GLFW uses
 void Input::key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
+  if (action == GLFW_PRESS) {
+    EventDispatcher::queue_event(std::make_unique<KeyPressedEvent>(key));
+  } else if (action == GLFW_RELEASE) {
+    EventDispatcher::queue_event(std::make_unique<KeyReleasedEvent>(key));
+  }
+
+  // The rest of this function can remain to update the internal state for
+  // is_key_down() polling, as both systems can coexist.
+
   // 1. Retrieve the Window instance from the user pointer
   Window *window_instance =
       static_cast<Window *>(glfwGetWindowUserPointer(window));
