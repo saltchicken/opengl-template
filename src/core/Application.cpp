@@ -76,8 +76,8 @@ void Application::run() {
   //
 
   auto camera_object = std::make_shared<SceneObject>(nullptr);
-  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 60.0f);
-  camera_object->add_component<CameraComponent>(45.0f, 2.0f, 100.0f);
+  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 10.0f);
+  camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
   m_active_scene->add_object(camera_object);
   m_active_scene->set_active_camera(camera_object);
 
@@ -87,7 +87,7 @@ void Application::run() {
   auto fractal_object = std::make_shared<SceneObject>(point_cloud_mesh);
   fractal_object->transform->scale = glm::vec3(3.0f);
   fractal_object->add_component<IfsFractalComponent>(
-      200000, 150, config.fractal_denoise_factor);
+      750000, 150, config.fractal_denoise_factor);
   fractal_object->add_component<PropertyAnimatorComponent>(
       PropertyAnimatorComponent::TargetProperty::ROTATION,
       PropertyAnimatorComponent::RotationParams{glm::vec3(0.0f, 1.0f, 0.0f),

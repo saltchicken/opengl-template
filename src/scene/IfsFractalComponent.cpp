@@ -47,12 +47,15 @@ void IfsFractalComponent::awake() {
   transforms_A[0].matrix = transforms_A[1].matrix = transforms_A[2].matrix =
       transforms_A[3].matrix = translate_A * rotate_A * scale_A;
 
-  // Fractal B: "Sierpinski Tetrahedron"
-  glm::mat4 scale_B = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f));
-  transforms_B[0].matrix = glm::translate(scale_B, glm::vec3(1, 1, 1));
-  transforms_B[1].matrix = glm::translate(scale_B, glm::vec3(-1, -1, 1));
-  transforms_B[2].matrix = glm::translate(scale_B, glm::vec3(1, -1, -1));
-  transforms_B[3].matrix = glm::translate(scale_B, glm::vec3(-1, 1, -1));
+  // Fractal B: "Spherical Spiral (variant)"
+  glm::mat4 scale_B = glm::scale(glm::mat4(1.0f), glm::vec3(0.85f));
+  glm::mat4 rotate_B = glm::rotate(glm::mat4(1.0f), glm::radians(99.0f),
+                                   glm::vec3(0.2, 0.9, 0.3));
+  glm::mat4 translate_B =
+      glm::translate(glm::mat4(1.0f), glm::vec3(-0.1, 0.05, 0.0));
+
+  transforms_B[0].matrix = transforms_B[1].matrix = transforms_B[2].matrix =
+      transforms_B[3].matrix = translate_B * rotate_B * scale_B;
 
   // Combine both sets of transforms into one large vector for the GPU
   std::vector<AffineTransform> all_transforms;
@@ -109,9 +112,9 @@ void IfsFractalComponent::update(float delta_time) {
 
   // Parameters for Fractal B (Sierpinski). These values disable the non-linear
   // effects.
-  m_compute_shader->set_float("u_twist_B", 0.0f);
-  m_compute_shader->set_float("u_spiral_B", 1.0f);
-  m_compute_shader->set_float("u_spherical_B", 0.0f);
+  m_compute_shader->set_float("u_twist_B", 3.0f);
+  m_compute_shader->set_float("u_spiral_B", 0.96f);
+  m_compute_shader->set_float("u_spherical_B", 0.9f);
 
   // --- DISPATCH COMPUTE SHADER ---
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_transforms_ssbo);

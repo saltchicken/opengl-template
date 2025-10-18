@@ -20,5 +20,5 @@ void main() {
     }
 
     // A simple, bright color for the fractal points
-    FragColor = vec4(0.9, 1.0, 0.8, u_point_alpha);
+    FragColor = vec4(0.0, 1.0, 0.8, u_point_alpha);
 }

@@ -3,12 +3,12 @@ width = 1920
 height = 1080
 title = "My OpenGL App"
 resizable = true
-transparent = true
+transparent = false
 
 # Performance settings
 [performance]
 fps = 60.0
 
 [fractal]
-denoise_factor = 0.01
-point_alpha = 0.2
+denoise_factor = 0.001
+point_alpha = 0.0
