@@ -26,7 +26,7 @@ public:
   ~Mesh();
 
   // Rule of 5
-  Mesh(const Mesh &) = delete;
+  Mesh(const Mesh &other);
   Mesh &operator=(const Mesh &) = delete;
   Mesh(Mesh &&other) noexcept;
   Mesh &operator=(Mesh &&other) noexcept;

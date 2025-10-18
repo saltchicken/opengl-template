@@ -77,6 +77,16 @@ std::shared_ptr<Mesh> ResourceManager::get_primitive(const std::string &name) {
   return m_meshes[name];
 }
 
+std::shared_ptr<Mesh>
+ResourceManager::create_primitive_instance(const std::string &name) {
+  auto source_mesh = get_primitive(name);
+  if (source_mesh) {
+    // This invokes the new Mesh(const Mesh& other) copy constructor
+    return std::make_shared<Mesh>(*source_mesh);
+  }
+  return nullptr;
+}
+
 void ResourceManager::clear() {
   // The smart pointers will handle the deletion of the OpenGL objects
   m_shaders.clear();

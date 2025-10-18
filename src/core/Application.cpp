@@ -6,6 +6,7 @@
 #include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
 #include "scene/FractalComponent.h"
+#include "scene/PhyllotaxisComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
 #include "scene/SceneObject.h"
@@ -45,7 +46,7 @@ void Application::run() {
   // TODO: This needs to be factored out of application.cpp
 
   auto camera_object = std::make_shared<SceneObject>(nullptr);
-  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 5.0f);
+  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 15.0f);
   camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
   m_active_scene->add_object(camera_object);
   m_active_scene->set_active_camera(camera_object);
@@ -54,18 +55,38 @@ void Application::run() {
 
   // 1. Load resources
   auto my_texture =
-      ResourceManager::load_texture("test", "assets/textures/test.png");
-  auto sphere_mesh = ResourceManager::get_primitive("sphere");
+      ResourceManager::load_texture("test", "assets/textures/test2.png");
+  auto phyllo_mesh = ResourceManager::create_primitive_instance("sphere");
   if (my_texture) {
-    sphere_mesh->textures.push_back(my_texture);
+    phyllo_mesh->textures.push_back(my_texture);
   }
 
-  // 2. Create the host SceneObject
-  auto fractal_object = std::make_shared<SceneObject>(sphere_mesh);
+  // // 2. Create the host SceneObject
+  auto pattern_object = std::make_shared<SceneObject>(phyllo_mesh);
 
-  // fractal_object->transform->scale = glm::vec3(0.1f);
+  // 2. REPLACE FractalComponent with PhyllotaxisComponent
+  // Let's create a shape with 8000 points and a radius of 4 units
+  pattern_object->add_component<PhyllotaxisComponent>(8000, 4.0f);
+
+  // Keep the animator to make the new shape rotate
+  pattern_object->add_component<PropertyAnimatorComponent>(
+      PropertyAnimatorComponent::TargetProperty::ROTATION,
+      PropertyAnimatorComponent::RotationParams{glm::vec3(0.5f, 1.0f, 0.0f),
+                                                15.0f});
+
+  // Add the single host object to the scene
+  m_active_scene->add_object(pattern_object);
+
+  auto fractal_mesh = ResourceManager::create_primitive_instance("sphere");
+  if (my_texture) {
+    fractal_mesh->textures.push_back(my_texture);
+  }
+
+  auto fractal_object = std::make_shared<SceneObject>(fractal_mesh);
+
+  fractal_object->transform->scale = glm::vec3(2.5f);
   // 3. Add the FractalComponent (depth 3 = 20^3 = 8000 spheres)
-  fractal_object->add_component<FractalComponent>(3);
+  fractal_object->add_component<FractalComponent>(3, 0.50f);
 
   // 4. (Optional) Add an animator to make the whole fractal rotate
   fractal_object->add_component<PropertyAnimatorComponent>(

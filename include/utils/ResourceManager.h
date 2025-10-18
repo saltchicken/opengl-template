@@ -25,6 +25,8 @@ public:
 
   // Meshes
   static std::shared_ptr<Mesh> get_primitive(const std::string &name);
+  static std::shared_ptr<Mesh>
+  create_primitive_instance(const std::string &name);
 
   // Clears all stored resources
   static void clear();

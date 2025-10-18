@@ -23,6 +23,14 @@ Mesh::~Mesh() {
   }
 }
 
+// UPDATE: Copy Constructor
+Mesh::Mesh(const Mesh &other)
+    : vertices(other.vertices), indices(other.indices),
+      textures(other.textures) {
+  // We have copied the data, now we need to generate new buffers for this copy
+  setup_mesh();
+}
+
 // UPDATE: Move Constructor
 Mesh::Mesh(Mesh &&other) noexcept
     : vertices(std::move(other.vertices)), indices(std::move(other.indices)),

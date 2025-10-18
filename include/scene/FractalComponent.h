@@ -5,7 +5,9 @@
 
 class FractalComponent : public Component {
 public:
-  FractalComponent(int recursion_depth = 3);
+  // ADD sphere_scale_multiplier parameter with a default value of 1.0
+  FractalComponent(int recursion_depth = 3,
+                   float sphere_scale_multiplier = 1.0f);
   void awake() override;
 
 private:
@@ -13,4 +15,5 @@ private:
 
   std::vector<glm::mat4> m_matrices;
   int m_recursion_depth;
+  float m_sphere_scale_multiplier; // <-- ADD this member variable
 };
