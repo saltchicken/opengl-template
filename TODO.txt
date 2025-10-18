@@ -1,3 +1,3 @@
-Decouple Input with an Event System: The current input system is tightly coupled to the main loop. A more flexible approach is a callback- or queue-based event system. This allows different parts of your application (UI, game logic, camera controls) to react to events without being directly called from the main loop.
+Implement an Event Queue (Deferred Dispatch)
 
-Concept: Create event structs (KeyEvent, MouseEvent) and a dispatcher that objects can subscribe to. This is a larger architectural change but is fundamental for growing the project.
+Add an Unsubscribe Mechanism

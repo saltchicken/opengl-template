@@ -11,17 +11,6 @@ void Input::update() {
          sizeof(m_current_key_states));
 }
 
-bool Input::process_input(Window &window) {
-  if (window.should_close()) {
-    return false;
-  }
-  if (is_key_down(GLFW_KEY_ESCAPE)) {
-    return false;
-  }
-  // Add other input handling here
-  return true;
-}
-
 // Static callback that GLFW uses
 void Input::key_callback(GLFWwindow *window, int key, int scancode, int action,
                          int mods) {
