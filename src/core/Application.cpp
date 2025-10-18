@@ -27,42 +27,26 @@ Application::Application() {
   subscribe_to_events();
 }
 
-Application::~Application() {
-  // NEW: Unsubscribe from all events upon destruction
-  EventDispatcher::unsubscribe<KeyPressedEvent>(m_subscription_handles[0]);
-  EventDispatcher::unsubscribe<KeyReleasedEvent>(m_subscription_handles[1]);
-  EventDispatcher::unsubscribe<WindowResizeEvent>(m_subscription_handles[2]);
-  EventDispatcher::unsubscribe<MouseButtonPressedEvent>(
-      m_subscription_handles[3]);
-  EventDispatcher::unsubscribe<MouseButtonReleasedEvent>(
-      m_subscription_handles[4]);
-
-  ResourceManager::clear();
-};
+Application::~Application() { ResourceManager::clear(); };
 
 void Application::subscribe_to_events() {
-  // CHANGE: Store the returned handles
-  m_subscription_handles.push_back(EventDispatcher::subscribe<KeyPressedEvent>(
+  // CHANGE: Simply push the returned ScopedSubscription object into the vector.
+  m_subscriptions.push_back(EventDispatcher::subscribe<KeyPressedEvent>(
       std::bind(&Application::on_key_pressed, this, std::placeholders::_1)));
 
-  m_subscription_handles.push_back(EventDispatcher::subscribe<KeyReleasedEvent>(
+  m_subscriptions.push_back(EventDispatcher::subscribe<KeyReleasedEvent>(
       [](KeyReleasedEvent &event) { Log::debug(event.to_string()); }));
 
-  m_subscription_handles.push_back(
-      EventDispatcher::subscribe<WindowResizeEvent>(
-          [](WindowResizeEvent &event) {
-            Log::info(
-                "Window resized to: " + std::to_string(event.get_width()) +
-                "x" + std::to_string(event.get_height()));
-          }));
+  m_subscriptions.push_back(EventDispatcher::subscribe<WindowResizeEvent>(
+      [](WindowResizeEvent &event) {
+        Log::info("Window resized to: " + std::to_string(event.get_width()) +
+                  "x" + std::to_string(event.get_height()));
+      }));
 
-  m_subscription_handles.push_back(
-      EventDispatcher::subscribe<MouseButtonPressedEvent>(
-          [](MouseButtonPressedEvent &event) {
-            Log::debug(event.to_string());
-          }));
+  m_subscriptions.push_back(EventDispatcher::subscribe<MouseButtonPressedEvent>(
+      [](MouseButtonPressedEvent &event) { Log::debug(event.to_string()); }));
 
-  m_subscription_handles.push_back(
+  m_subscriptions.push_back(
       EventDispatcher::subscribe<MouseButtonReleasedEvent>(
           [](MouseButtonReleasedEvent &event) {
             Log::debug(event.to_string());

@@ -28,5 +28,5 @@ private:
   std::unique_ptr<Renderer> m_renderer;
   std::unique_ptr<Scene> m_active_scene;
 
-  std::vector<EventDispatcher::SubscriptionHandle> m_subscription_handles;
+  std::vector<ScopedSubscription> m_subscriptions;
 };
