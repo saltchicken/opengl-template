@@ -1,5 +1,7 @@
 #pragma once
+#include "core/events/EventDispatcher.h" // Include for the handle type
 #include <memory>
+#include <vector>
 
 // Forward declarations
 class Window;
@@ -25,4 +27,6 @@ private:
   std::unique_ptr<Settings> m_settings;
   std::unique_ptr<Renderer> m_renderer;
   std::unique_ptr<Scene> m_active_scene;
+
+  std::vector<EventDispatcher::SubscriptionHandle> m_subscription_handles;
 };
