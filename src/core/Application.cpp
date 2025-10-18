@@ -1,5 +1,8 @@
 #include "core/Application.h"
+#include "core/AppEvent.h"
+#include "core/EventDispatcher.h"
 #include "core/Input.h"
+#include "core/KeyEvent.h"
 #include "core/Settings.h"
 #include "core/Time.h"
 #include "core/Window.h"
@@ -19,9 +22,30 @@ Application::Application() {
   m_renderer = std::make_unique<Renderer>();
   // Initialize camera looking at the origin from 3 units away
   m_active_scene = std::make_unique<Scene>();
+
+  subscribe_to_events();
 }
 
 Application::~Application() { ResourceManager::clear(); };
+
+void Application::subscribe_to_events() {
+  // Subscribe the on_key_pressed member function to KeyPressedEvent
+  EventDispatcher::subscribe<KeyPressedEvent>(
+      std::bind(&Application::on_key_pressed, this, std::placeholders::_1));
+
+  // You can also subscribe with a lambda for simple things
+  EventDispatcher::subscribe<WindowResizeEvent>([](WindowResizeEvent &event) {
+    Log::info("Window resized to: " + std::to_string(event.get_width()) + "x" +
+              std::to_string(event.get_height()));
+  });
+}
+
+void Application::on_key_pressed(KeyPressedEvent &event) {
+  Log::debug(event.to_string());
+  if (event.get_key_code() == GLFW_KEY_ESCAPE) {
+    m_window->set_should_close(true);
+  }
+}
 
 void Application::run() {
   m_settings->load("settings.toml");

@@ -1,4 +1,6 @@
 #include "core/Window.h"
+#include "core/AppEvent.h"
+#include "core/EventDispatcher.h"
 #include "core/Input.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -80,11 +82,15 @@ void Window::poll_events() { glfwPollEvents(); }
 // This static function acts as a bridge
 void Window::framebuffer_size_callback(GLFWwindow *window, int width,
                                        int height) {
+  // Publish the event
+  WindowResizeEvent event(width, height);
+  EventDispatcher::publish(event);
+
   // Retrieve the Window instance that owns this GLFWwindow
   Window *window_instance =
       static_cast<Window *>(glfwGetWindowUserPointer(window));
   if (window_instance) {
-    // Call the instance-specific resize handler
+    // The instance can still update its internal state if needed
     window_instance->on_resize(width, height);
   }
 }
