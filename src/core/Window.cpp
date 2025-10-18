@@ -2,6 +2,7 @@
 #include "core/Input.h"
 #include "core/events/AppEvent.h"
 #include "core/events/EventDispatcher.h"
+#include "core/events/MouseEvent.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>
@@ -14,6 +15,12 @@ Window::~Window() {
   }
   glfwTerminate();
   std::cout << "Window destroyed and GLFW terminated." << std::endl;
+}
+
+static void cursor_position_callback(GLFWwindow *window, double xpos,
+                                     double ypos) {
+  MouseMovedEvent event(static_cast<float>(xpos), static_cast<float>(ypos));
+  EventDispatcher::publish(event);
 }
 
 bool Window::init(unsigned int width, unsigned int height, const char *title,
@@ -53,6 +60,7 @@ bool Window::init(unsigned int width, unsigned int height, const char *title,
 
   glfwSetKeyCallback(m_window, Input::key_callback);
   glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+  glfwSetCursorPosCallback(m_window, cursor_position_callback);
 
   // 3. Initialize GLAD
   if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
