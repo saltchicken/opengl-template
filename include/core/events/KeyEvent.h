@@ -27,4 +27,13 @@ public:
   }
 };
 
-// (You can add KeyReleasedEvent here later in the same pattern)
+class KeyReleasedEvent : public KeyEvent {
+public:
+  KeyReleasedEvent(int key_code) : KeyEvent(key_code) {}
+
+  EVENT_CLASS_TYPE(KeyReleased)
+
+  std::string to_string() const override {
+    return "KeyReleasedEvent: " + std::to_string(m_key_code);
+  }
+};

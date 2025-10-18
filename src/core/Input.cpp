@@ -28,8 +28,10 @@ void Input::key_callback(GLFWwindow *window, int key, int scancode, int action,
   if (action == GLFW_PRESS) {
     KeyPressedEvent event(key);
     EventDispatcher::publish(event);
+  } else if (action == GLFW_RELEASE) {
+    KeyReleasedEvent event(key);
+    EventDispatcher::publish(event);
   }
-  // (You could publish a KeyReleasedEvent for GLFW_RELEASE later)
 
   // The rest of this function can remain to update the internal state for
   // is_key_down() polling, as both systems can coexist.

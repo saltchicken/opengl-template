@@ -33,6 +33,10 @@ void Application::subscribe_to_events() {
   EventDispatcher::subscribe<KeyPressedEvent>(
       std::bind(&Application::on_key_pressed, this, std::placeholders::_1));
 
+  EventDispatcher::subscribe<KeyReleasedEvent>([](KeyReleasedEvent &event) {
+    Log::debug(event.to_string()); // This will print the debug message
+  });
+
   // You can also subscribe with a lambda for simple things
   EventDispatcher::subscribe<WindowResizeEvent>([](WindowResizeEvent &event) {
     Log::info("Window resized to: " + std::to_string(event.get_width()) + "x" +
