@@ -9,11 +9,14 @@ class Shader; // Forward declaration
 
 class IfsFractalComponent : public Component {
 public:
-  IfsFractalComponent(size_t num_points = 200000, int iterations = 150);
+  IfsFractalComponent(size_t num_points = 200000, int iterations = 150,
+                      float denoise_factor = 0.5f);
   ~IfsFractalComponent();
 
   void awake() override;
   void update(float delta_time) override;
+
+  float denoise_factor;
 
 private:
   // A struct to hold one of our fractal's transformation rules

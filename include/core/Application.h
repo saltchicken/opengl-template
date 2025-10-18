@@ -1,4 +1,5 @@
 #pragma once
+
 #include "core/events/EventDispatcher.h" // Include for the handle type
 #include <memory>
 #include <vector>
@@ -10,6 +11,7 @@ class Renderer;
 class Scene;
 class Event;
 class KeyPressedEvent;
+class WindowResizeEvent;
 
 class Application {
 public:
@@ -22,6 +24,7 @@ public:
 private:
   void subscribe_to_events();
   void on_key_pressed(KeyPressedEvent &event);
+  void on_window_resize(WindowResizeEvent &event);
 
   std::unique_ptr<Window> m_window;
   std::unique_ptr<Settings> m_settings;

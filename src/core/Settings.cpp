@@ -20,6 +20,10 @@ bool Settings::load(const std::string &filepath) {
     m_config.window_transparent =
         tbl["window"]["transparent"].value_or(m_config.window_transparent);
     m_config.fps = tbl["performance"]["fps"].value_or(m_config.fps);
+    m_config.fractal_denoise_factor = tbl["fractal"]["denoise_factor"].value_or(
+        m_config.fractal_denoise_factor);
+    m_config.fractal_point_alpha =
+        tbl["fractal"]["point_alpha"].value_or(m_config.fractal_point_alpha);
 
     Log::info("Settings loaded successfully from " + filepath);
     return true;

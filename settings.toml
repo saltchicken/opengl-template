@@ -8,3 +8,7 @@ transparent = true
 # Performance settings
 [performance]
 fps = 60.0
+
+[fractal]
+denoise_factor = 0.01
+point_alpha = 0.2

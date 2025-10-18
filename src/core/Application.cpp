@@ -30,27 +30,11 @@ Application::Application() {
 Application::~Application() { ResourceManager::clear(); };
 
 void Application::subscribe_to_events() {
-  // CHANGE: Simply push the returned ScopedSubscription object into the vector.
   m_subscriptions.push_back(EventDispatcher::subscribe<KeyPressedEvent>(
       std::bind(&Application::on_key_pressed, this, std::placeholders::_1)));
 
-  m_subscriptions.push_back(EventDispatcher::subscribe<KeyReleasedEvent>(
-      [](KeyReleasedEvent &event) { Log::debug(event.to_string()); }));
-
   m_subscriptions.push_back(EventDispatcher::subscribe<WindowResizeEvent>(
-      [](WindowResizeEvent &event) {
-        Log::info("Window resized to: " + std::to_string(event.get_width()) +
-                  "x" + std::to_string(event.get_height()));
-      }));
-
-  m_subscriptions.push_back(EventDispatcher::subscribe<MouseButtonPressedEvent>(
-      [](MouseButtonPressedEvent &event) { Log::debug(event.to_string()); }));
-
-  m_subscriptions.push_back(
-      EventDispatcher::subscribe<MouseButtonReleasedEvent>(
-          [](MouseButtonReleasedEvent &event) {
-            Log::debug(event.to_string());
-          }));
+      std::bind(&Application::on_window_resize, this, std::placeholders::_1)));
 }
 
 void Application::on_key_pressed(KeyPressedEvent &event) {
@@ -60,9 +44,18 @@ void Application::on_key_pressed(KeyPressedEvent &event) {
   }
 }
 
+void Application::on_window_resize(WindowResizeEvent &event) {
+  Log::info("Window resized to: " + std::to_string(event.get_width()) + "x" +
+            std::to_string(event.get_height()));
+  if (m_renderer) {
+    m_renderer->on_window_resize(event.get_width(), event.get_height());
+  }
+}
+
 void Application::run() {
   m_settings->load("settings.toml");
   const auto &config = m_settings->get_config();
+
   Time::init(config.fps);
 
   if (!m_window->init(config.window_width, config.window_height,
@@ -71,7 +64,9 @@ void Application::run() {
     Log::error("Failed to initialize window!");
     return;
   }
-  if (!m_renderer->init(config.window_transparent)) {
+
+  if (!m_renderer->init(config, m_window->get_width(),
+                        m_window->get_height())) {
     Log::error("Failed to initialize renderer!");
     return;
   }
@@ -79,8 +74,8 @@ void Application::run() {
   //
   // SCENE SETUP
   //
+
   auto camera_object = std::make_shared<SceneObject>(nullptr);
-  // --- FIX: Pull camera back to see the larger fractal ---
   camera_object->transform->position = glm::vec3(0.0f, 0.0f, 6.0f);
   camera_object->add_component<CameraComponent>(45.0f, 2.0f, 100.0f);
   m_active_scene->add_object(camera_object);
@@ -89,13 +84,10 @@ void Application::run() {
   auto point_cloud_mesh =
       std::make_shared<Mesh>(std::vector<Vertex>{}, std::vector<unsigned int>{},
                              std::vector<std::shared_ptr<Texture>>{});
-
   auto fractal_object = std::make_shared<SceneObject>(point_cloud_mesh);
-  // --- FIX: Adjust scale for the new shape ---
   fractal_object->transform->scale = glm::vec3(3.0f);
-
-  fractal_object->add_component<IfsFractalComponent>(20000, 150);
-
+  fractal_object->add_component<IfsFractalComponent>(
+      20000, 150, config.fractal_denoise_factor);
   fractal_object->add_component<PropertyAnimatorComponent>(
       PropertyAnimatorComponent::TargetProperty::ROTATION,
       PropertyAnimatorComponent::RotationParams{glm::vec3(0.0f, 1.0f, 0.0f),
@@ -107,22 +99,22 @@ void Application::run() {
   //
 
   Input *input = m_window->get_input();
-  Log::debug("Starting main loop");
 
+  Log::debug("Starting main loop");
   while (!m_window->should_close()) {
     Time::begin_frame();
     double delta_time = Time::get_delta_time();
-    m_window->poll_events();
 
+    m_window->poll_events();
     EventDispatcher::dispatch_events();
+
     if (m_window->should_close()) {
       continue;
     }
-    // Update all object and their components in the scene
+
     m_active_scene->update(delta_time);
 
-    m_renderer->update(delta_time);
-    m_renderer->draw(*m_active_scene, m_window->get_width(),
+    m_renderer->draw(*m_active_scene, config, m_window->get_width(),
                      m_window->get_height());
 
     m_window->swap_buffers();

@@ -8,8 +8,11 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-IfsFractalComponent::IfsFractalComponent(size_t num_points, int iterations)
-    : m_num_points(num_points), m_iterations(iterations) {}
+// FIX: Add the third parameter to the definition and initialize the member
+IfsFractalComponent::IfsFractalComponent(size_t num_points, int iterations,
+                                         float denoise_factor)
+    : m_num_points(num_points), m_iterations(iterations),
+      denoise_factor(denoise_factor) {}
 
 IfsFractalComponent::~IfsFractalComponent() {
   if (m_transforms_ssbo != 0) {
@@ -31,7 +34,6 @@ void IfsFractalComponent::awake() {
   // For easy interpolation, both fractals must have the same number of
   // transforms.
   m_num_base_transforms = 4;
-
   std::vector<AffineTransform> transforms_A(m_num_base_transforms);
   std::vector<AffineTransform> transforms_B(m_num_base_transforms);
 
@@ -76,6 +78,7 @@ void IfsFractalComponent::awake() {
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_points_ssbo);
   glBufferData(GL_SHADER_STORAGE_BUFFER, m_num_points * sizeof(glm::vec4),
                nullptr, GL_STATIC_DRAW);
+
   glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 
   m_owner->mesh->setup_as_point_cloud(m_num_points);
@@ -113,6 +116,7 @@ void IfsFractalComponent::update(float delta_time) {
   // --- DISPATCH COMPUTE SHADER ---
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_transforms_ssbo);
   glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_points_ssbo);
+
   const unsigned int work_group_size = 256;
   const unsigned int num_work_groups =
       (m_num_points + work_group_size - 1) / work_group_size;
