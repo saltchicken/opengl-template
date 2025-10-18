@@ -91,7 +91,7 @@ void Time::update_fps() {
   s_frame_count++;
   // If one second has passed since the last FPS update
   if (s_frame_start_time - s_last_fps_time >= 1.0) {
-    Log::debug("FPS: " + std::to_string(s_frame_count));
+    // Log::debug("FPS: " + std::to_string(s_frame_count));
 
     // NOTE: This can be removed if perfect accuracy detection is not needed
     if (s_missed_frames_count > 0) {

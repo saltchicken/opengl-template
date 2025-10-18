@@ -1,6 +1,9 @@
 #pragma once
 #include "core/events/EventDispatcher.h" // Include for the handle type
 #include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
 #include <vector>
 
 // Forward declarations
@@ -22,6 +25,7 @@ public:
 private:
   void subscribe_to_events();
   void on_key_pressed(KeyPressedEvent &event);
+  void process_script_commands();
 
   std::unique_ptr<Window> m_window;
   std::unique_ptr<Settings> m_settings;
@@ -29,4 +33,8 @@ private:
   std::unique_ptr<Scene> m_active_scene;
 
   std::vector<ScopedSubscription> m_subscriptions;
+
+  std::thread m_console_thread;
+  std::mutex m_command_mutex;
+  std::vector<std::string> m_command_queue;
 };

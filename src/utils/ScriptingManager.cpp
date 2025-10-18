@@ -153,3 +153,24 @@ void ScriptingManager::bind_scene_types() {
                                    "set_active_camera",
                                    &Scene::set_active_camera);
 }
+
+void ScriptingManager::execute_string(Scene &scene,
+                                      const std::string &command) {
+  if (!s_lua_state) {
+    Log::error("ScriptingManager not initialized.");
+    return;
+  }
+  try {
+    // Set a global variable 'scene' to the current scene object
+    (*s_lua_state)["scene"] = &scene;
+
+    auto result = s_lua_state->script(command);
+
+    if (!result.valid()) {
+      sol::error err = result;
+      Log::error("Lua error: " + std::string(err.what()));
+    }
+  } catch (const sol::error &e) {
+    Log::error("Lua error: " + std::string(e.what()));
+  }
+}

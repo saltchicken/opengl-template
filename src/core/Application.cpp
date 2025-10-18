@@ -25,7 +25,33 @@ Application::Application() {
   subscribe_to_events();
 }
 
-Application::~Application() { ResourceManager::clear(); };
+Application::~Application() {
+
+  if (m_console_thread.joinable()) {
+    // TODO: A real app might need a more graceful shutdown signal
+    // but for this, we can detach as the app is closing.
+    m_console_thread.detach();
+  }
+  ResourceManager::clear();
+};
+
+void Application::process_script_commands() {
+  // Create a temporary copy of commands to process
+  std::vector<std::string> commands_to_run;
+  {
+    // Lock the mutex to safely access the command queue
+    std::lock_guard<std::mutex> lock(m_command_mutex);
+    if (!m_command_queue.empty()) {
+      commands_to_run.swap(m_command_queue);
+    }
+  } // Mutex is unlocked here
+
+  // Execute commands outside the lock
+  for (const auto &command : commands_to_run) {
+    Log::info("Executing: " + command);
+    ScriptingManager::execute_string(*m_active_scene, command);
+  }
+}
 
 void Application::subscribe_to_events() {
   // CHANGE: Simply push the returned ScopedSubscription object into the vector.
@@ -77,6 +103,19 @@ void Application::run() {
 
   ScriptingManager::init();
 
+  m_console_thread = std::thread([this]() {
+    Log::info(
+        "Interactive Lua console started. Type commands and press Enter.");
+    std::string line;
+    while (std::getline(std::cin, line)) {
+      if (!line.empty()) {
+        // Lock the mutex to safely push the command to the queue
+        std::lock_guard<std::mutex> lock(m_command_mutex);
+        m_command_queue.push_back(line);
+      }
+    }
+  });
+
   //
   // SCENE SETUP
   //
@@ -96,6 +135,7 @@ void Application::run() {
 
     double delta_time = Time::get_delta_time();
 
+    process_script_commands();
     m_window->poll_events();
 
     EventDispatcher::dispatch_events();

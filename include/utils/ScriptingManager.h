@@ -14,6 +14,7 @@ public:
 
   // Loads and executes a Lua script that builds a scene
   static bool load_scene_script(Scene &scene, const std::string &filepath);
+  static void execute_string(Scene &scene, const std::string &command);
 
 private:
   // Exposes core types like glm::vec3
