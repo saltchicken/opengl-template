@@ -9,10 +9,7 @@ class Shader; // Forward declaration
 
 class IfsFractalComponent : public Component {
 public:
-  // num_points: how many points to generate
-  // iterations: how many times to apply transforms for each point (higher =
-  // more detail)
-  IfsFractalComponent(size_t num_points = 100000, int iterations = 100);
+  IfsFractalComponent(size_t num_points = 200000, int iterations = 150);
   ~IfsFractalComponent();
 
   void awake() override;
@@ -22,14 +19,14 @@ private:
   // A struct to hold one of our fractal's transformation rules
   struct AffineTransform {
     glm::mat4 matrix;
-    // We can add color or other properties here later
+    // Pad to align with std140/std430 memory layout if more members are added
   };
 
   size_t m_num_points;
   int m_iterations;
+  int m_num_base_transforms = 0; // The number of transforms *per fractal*
 
   std::shared_ptr<Shader> m_compute_shader;
-  std::vector<AffineTransform> m_transforms;
 
   // SSBO for the fractal rules, SSBO for the resulting points
   unsigned int m_transforms_ssbo = 0;

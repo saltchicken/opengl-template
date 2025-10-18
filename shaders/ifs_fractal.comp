@@ -14,12 +14,22 @@ layout(std430, binding = 1) writeonly buffer PointsBuffer {
     vec4 points[];
 } point_buffer;
 
+// Uniforms
 uniform float u_time;
 uniform int u_iterations;
-uniform float u_twist_strength;
-uniform float u_spiral_strength;
-// --- NEW: Uniform to control the spherical variation strength ---
-uniform float u_spherical_strength;
+uniform int u_num_base_transforms;
+uniform float u_interpolation_factor;
+
+// Parameters for Fractal A
+uniform float u_twist_A;
+uniform float u_spiral_A;
+uniform float u_spherical_A;
+
+// Parameters for Fractal B
+uniform float u_twist_B;
+uniform float u_spiral_B;
+uniform float u_spherical_B;
+
 
 float random(vec2 st) {
     return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
@@ -31,43 +41,48 @@ void main() {
         return;
     }
 
+    float twist_strength = mix(u_twist_A, u_twist_B, u_interpolation_factor);
+    float spiral_strength = mix(u_spiral_A, u_spiral_B, u_interpolation_factor);
+    float spherical_strength = mix(u_spherical_A, u_spherical_B, u_interpolation_factor);
+
     vec2 seed = vec2(id, u_time);
     vec4 current_pos = vec4(random(seed) * 2.0 - 1.0, 
                             random(seed.yx) * 2.0 - 1.0, 
                             random(seed.xx) * 2.0 - 1.0, 1.0);
     
-    int num_transforms = transform_buffer.transforms.length();
-
     for (int i = 0; i < u_iterations; ++i) {
-        // --- STEP 1: LINEAR transform ---
         float rand = random(current_pos.xy + seed);
-        int transform_index = int(rand * num_transforms);
-        mat4 transform_matrix = transform_buffer.transforms[transform_index].matrix;
+        int transform_index = int(rand * u_num_base_transforms);
+
+        mat4 matrix_A = transform_buffer.transforms[transform_index].matrix;
+        mat4 matrix_B = transform_buffer.transforms[transform_index + u_num_base_transforms].matrix;
+
+        // --- FIX: Manually interpolate each column of the matrix ---
+        mat4 transform_matrix = mat4(
+            mix(matrix_A[0], matrix_B[0], u_interpolation_factor), // Column 0
+            mix(matrix_A[1], matrix_B[1], u_interpolation_factor), // Column 1
+            mix(matrix_A[2], matrix_B[2], u_interpolation_factor), // Column 2
+            mix(matrix_A[3], matrix_B[3], u_interpolation_factor)  // Column 3
+        );
+        // --- END FIX ---
+
         current_pos = transform_matrix * current_pos;
 
-        // --- STEP 2: NON-LINEAR SPIRAL transform ---
+        // Apply interpolated NON-LINEAR SPIRAL transform
         float dist_from_center = length(current_pos.xz);
-        float twist_angle = dist_from_center * u_twist_strength;
+        float twist_angle = dist_from_center * twist_strength;
         float s = sin(twist_angle);
         float c = cos(twist_angle);
         mat4 spiral_rotation = mat4(c, 0, s, 0, 0, 1, 0, 0, -s, 0, c, 0, 0, 0, 0, 1);
         current_pos = spiral_rotation * current_pos;
-        current_pos.xz *= u_spiral_strength;
-        current_pos.y *= 0.95; 
+        current_pos.xz *= spiral_strength;
+        current_pos.y *= mix(0.95, 1.0, u_interpolation_factor); 
 
-        // --- STEP 3: NEW NON-LINEAR SPHERICAL VARIATION ---
-        // Calculate the squared distance from the origin
+        // Apply interpolated NON-LINEAR SPHERICAL VARIATION
         float r2 = dot(current_pos.xyz, current_pos.xyz);
-        
-        // Avoid division by zero if the point is at the origin
         if (r2 < 1.0e-6) r2 = 1.0e-6;
-
-        // The spherical variation formula: p_new = p_old / r^2
         vec4 spherical_pos = vec4(current_pos.xyz / r2, 1.0);
-
-        // Blend between the position *before* the variation and the *after* position
-        // A strength of 0.0 does nothing, 1.0 applies it fully.
-        current_pos = mix(current_pos, spherical_pos, u_spherical_strength);
+        current_pos = mix(current_pos, spherical_pos, spherical_strength);
 
         seed += 0.1;
     }
