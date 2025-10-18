@@ -3,61 +3,65 @@
 #include <glad/glad.h>
 #include <utility> // For std::move
 
-// Constructor: Initializes the mesh with data and sets up GPU buffers.
+// Constructor remains the same
 Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
            std::vector<std::shared_ptr<Texture>> textures)
     : vertices(std::move(vertices)), indices(std::move(indices)),
       textures(std::move(textures)) {
-  // Now that we have all the required data, set up the vertex buffers and
-  // attribute pointers.
   setup_mesh();
 }
 
-// Destructor: Cleans up the GPU resources when the mesh object is destroyed.
+// UPDATE: Destructor
 Mesh::~Mesh() {
-  // Only try to delete if the handles are valid (not 0)
   if (m_vao != 0) {
     glDeleteVertexArrays(1, &m_vao);
     glDeleteBuffers(1, &m_vbo);
     glDeleteBuffers(1, &m_ebo);
+    if (m_instance_vbo != 0) {
+      glDeleteBuffers(1, &m_instance_vbo);
+    }
   }
 }
 
-// Move Constructor: Transfers ownership of GPU resources from another mesh.
+// UPDATE: Move Constructor
 Mesh::Mesh(Mesh &&other) noexcept
     : vertices(std::move(other.vertices)), indices(std::move(other.indices)),
       textures(std::move(other.textures)), m_vao(other.m_vao),
-      m_vbo(other.m_vbo), m_ebo(other.m_ebo) {
-  // Prevent the moved-from object's destructor from freeing the buffers by
-  // setting its handles to 0. This is crucial for preventing double-deletion.
+      m_vbo(other.m_vbo), m_ebo(other.m_ebo),
+      m_instance_vbo(other.m_instance_vbo),
+      m_instance_count(other.m_instance_count) {
   other.m_vao = 0;
   other.m_vbo = 0;
   other.m_ebo = 0;
+  other.m_instance_vbo = 0;
+  other.m_instance_count = 0;
 }
 
-// Move Assignment Operator: Transfers ownership from another mesh.
+// UPDATE: Move Assignment
 Mesh &Mesh::operator=(Mesh &&other) noexcept {
-  // 1. Check for self-assignment
   if (this != &other) {
-    // 2. Free existing resources of the current object
     if (m_vao != 0) {
       glDeleteVertexArrays(1, &m_vao);
       glDeleteBuffers(1, &m_vbo);
       glDeleteBuffers(1, &m_ebo);
+      if (m_instance_vbo != 0) {
+        glDeleteBuffers(1, &m_instance_vbo);
+      }
     }
-
-    // 3. Move data and resource handles from the other object
     vertices = std::move(other.vertices);
     indices = std::move(other.indices);
     textures = std::move(other.textures);
     m_vao = other.m_vao;
     m_vbo = other.m_vbo;
     m_ebo = other.m_ebo;
+    m_instance_vbo = other.m_instance_vbo;
+    m_instance_count = other.m_instance_count;
 
-    // 4. Prevent the other object's destructor from freeing the resources
     other.m_vao = 0;
     other.m_vbo = 0;
     other.m_ebo = 0;
+    other.m_instance_vbo = 0;
+    other.m_instance_count = 0;
   }
   return *this;
 }
@@ -104,22 +108,72 @@ void Mesh::setup_mesh() {
 
 // Renders the mesh.
 void Mesh::draw(Shader &shader) {
-  // Bind the first texture if it exists.
-  // A more advanced system would loop through all textures.
   if (!textures.empty() && textures[0]) {
-    shader.set_int("u_texture", 0); // Tell shader to use texture unit 0
+    shader.set_int("u_texture", 0);
     textures[0]->bind(0);
   }
 
-  // Bind the VAO and draw the elements
   glBindVertexArray(m_vao);
-  glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()),
-                 GL_UNSIGNED_INT, 0);
+  if (is_instanced()) {
+    glDrawElementsInstanced(GL_TRIANGLES, static_cast<GLsizei>(indices.size()),
+                            GL_UNSIGNED_INT, 0, m_instance_count);
+  } else {
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()),
+                   GL_UNSIGNED_INT, 0);
+  }
 
-  // Unbind the VAO to be clean
   glBindVertexArray(0);
-
-  // Unbind texture
   glActiveTexture(GL_TEXTURE0);
   glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+// --- NEW ---
+bool Mesh::is_instanced() const {
+  return m_instance_vbo != 0 && m_instance_count > 0;
+}
+
+// --- NEW ---
+void Mesh::setup_instancing(const std::vector<glm::mat4> &matrices) {
+  if (matrices.empty()) {
+    m_instance_count = 0;
+    return;
+  }
+  m_instance_count = matrices.size();
+
+  // Create the VBO if it doesn't exist yet
+  if (m_instance_vbo == 0) {
+    glGenBuffers(1, &m_instance_vbo);
+  }
+
+  // Bind the VAO first
+  glBindVertexArray(m_vao);
+
+  // Upload the instance matrix data to the new VBO
+  glBindBuffer(GL_ARRAY_BUFFER, m_instance_vbo);
+  glBufferData(GL_ARRAY_BUFFER, m_instance_count * sizeof(glm::mat4),
+               matrices.data(), GL_STATIC_DRAW);
+
+  // Set up vertex attribute pointers for the instance matrix.
+  // A mat4 is equivalent to 4 vec4s.
+  glEnableVertexAttribArray(3);
+  glVertexAttribPointer(3, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4), (void *)0);
+  glEnableVertexAttribArray(4);
+  glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                        (void *)(sizeof(glm::vec4)));
+  glEnableVertexAttribArray(5);
+  glVertexAttribPointer(5, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                        (void *)(2 * sizeof(glm::vec4)));
+  glEnableVertexAttribArray(6);
+  glVertexAttribPointer(6, 4, GL_FLOAT, GL_FALSE, sizeof(glm::mat4),
+                        (void *)(3 * sizeof(glm::vec4)));
+
+  // This is the crucial part: tell OpenGL that these attributes are
+  // per-instance
+  glVertexAttribDivisor(3, 1);
+  glVertexAttribDivisor(4, 1);
+  glVertexAttribDivisor(5, 1);
+  glVertexAttribDivisor(6, 1);
+
+  // Unbind
+  glBindVertexArray(0);
 }

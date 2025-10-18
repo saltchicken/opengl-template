@@ -20,32 +20,33 @@ public:
   std::vector<unsigned int> indices;
   std::vector<std::shared_ptr<Texture>> textures;
 
-  // Constructor
+  // Constructor & Destructor
   Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
        std::vector<std::shared_ptr<Texture>> textures);
-
-  // Destructor to free GPU resources
   ~Mesh();
 
-  // Disable copying to prevent double-deletion of GPU resources.
-  // A mesh's data can be shared via std::shared_ptr, but the GPU resource
-  // handle itself should have a single owner.
+  // Rule of 5
   Mesh(const Mesh &) = delete;
   Mesh &operator=(const Mesh &) = delete;
-
-  // Enable moving for efficient resource transfer (e.g., from a factory)
   Mesh(Mesh &&other) noexcept;
   Mesh &operator=(Mesh &&other) noexcept;
 
   // Render the mesh
   void draw(Shader &shader);
 
+  // --- NEW INSTANCING METHODS ---
+  void setup_instancing(const std::vector<glm::mat4> &matrices);
+  bool is_instanced() const;
+
 private:
-  // Render data - OpenGL handles
+  // Render data
   unsigned int m_vao = 0;
   unsigned int m_vbo = 0;
   unsigned int m_ebo = 0;
 
-  // Initializes all the buffer objects/arrays
+  // --- NEW INSTANCING DATA ---
+  unsigned int m_instance_vbo = 0; // VBO for instance model matrices
+  size_t m_instance_count = 0;
+
   void setup_mesh();
 };
