@@ -1,5 +1,5 @@
 #include "core/Settings.h"
-#include <iostream>
+#include "utils/Log.h"
 #include <toml++/toml.h>
 
 Settings::Settings() = default;
@@ -17,18 +17,20 @@ bool Settings::load(const std::string &filepath) {
         tbl["window"]["title"].value_or(m_config.window_title);
     m_config.window_resizable =
         tbl["window"]["resizable"].value_or(m_config.window_resizable);
+    m_config.window_transparent =
+        tbl["window"]["transparent"].value_or(m_config.window_transparent);
     m_config.fps = tbl["performance"]["fps"].value_or(m_config.fps);
 
-    std::cout << "Settings loaded successfully from " << filepath << std::endl;
+    Log::info("Settings loaded successfully from " + filepath);
     return true;
   } catch (const toml::parse_error &err) {
-    std::cerr << "Failed to parse " << filepath << ":\n" << err << std::endl;
-    std::cerr << "Using default settings." << std::endl;
+    Log::error("Failed to parse " + filepath + ": " + err.what());
+    Log::warn("Using default settings.");
     return false;
   } catch (const std::exception &e) {
-    std::cerr << "An unexpected error occurred while reading " << filepath
-              << ": " << e.what() << std::endl;
-    std::cerr << "Using default settings." << std::endl;
+    Log::error("An unexpected error occurred while reading " + filepath + ": " +
+               e.what());
+    Log::warn("Using default settings.");
     return false;
   }
 }

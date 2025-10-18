@@ -10,8 +10,15 @@
 Renderer::Renderer() = default;
 Renderer::~Renderer() = default;
 
-bool Renderer::init() {
+bool Renderer::init(bool transparent_background) {
+  m_transparent_background = transparent_background;
   glEnable(GL_DEPTH_TEST);
+
+  if (m_transparent_background) {
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Transparent black
+  } else {
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
+  }
   // 1. Create the shader program using our Shader class
   m_shader = ResourceManager::load_shader("default", "shaders/shader.vert",
                                           "shaders/shader.frag");
@@ -21,14 +28,15 @@ bool Renderer::init() {
     return false;
   }
 
-  m_background_shader = ResourceManager::load_shader(
-      "background", "shaders/background.vert", "shaders/background.frag");
-  if (!m_background_shader) {
-    std::cerr << "Failed to load 'background' shader." << std::endl;
-    return false;
+  if (!m_transparent_background) {
+    m_background_shader = ResourceManager::load_shader(
+        "background", "shaders/background.vert", "shaders/background.frag");
+    if (!m_background_shader) {
+      std::cerr << "Failed to load 'background' shader." << std::endl;
+      return false;
+    }
+    m_background_quad_mesh = ResourceManager::get_primitive("quad");
   }
-
-  m_background_quad_mesh = ResourceManager::get_primitive("quad");
 
   std::cout << "Renderer initialized successfully." << std::endl;
   return true;
@@ -42,11 +50,13 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
                     unsigned int screen_height) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  glDepthMask(GL_FALSE);
-  m_background_shader->use();
-  m_background_quad_mesh->draw(*m_background_shader);
-  // Re-enable depth writing for the main scene.
-  glDepthMask(GL_TRUE);
+  if (!m_transparent_background) {
+    glDepthMask(GL_FALSE);
+    m_background_shader->use();
+    m_background_quad_mesh->draw(*m_background_shader);
+    // Re-enable depth writing for the main scene.
+    glDepthMask(GL_TRUE);
+  }
 
   auto camera_object = scene.get_active_camera();
   if (!camera_object) {

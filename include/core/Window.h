@@ -12,7 +12,7 @@ public:
 
   // Initializes GLFW, creates a window, and initializes GLAD.
   bool init(unsigned int width, unsigned int height, const char *title,
-            bool resizable);
+            bool resizable, bool transparent);
 
   // Checks if the window has been flagged to close.
   bool should_close();

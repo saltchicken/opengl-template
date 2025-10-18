@@ -15,7 +15,7 @@ Window::~Window() {
 }
 
 bool Window::init(unsigned int width, unsigned int height, const char *title,
-                  bool resizable) {
+                  bool resizable, bool transparent) {
   m_width = width;
   m_height = height;
   // 1. Initialize GLFW
@@ -28,6 +28,10 @@ bool Window::init(unsigned int width, unsigned int height, const char *title,
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
   glfwWindowHint(GLFW_RESIZABLE, resizable ? GLFW_TRUE : GLFW_FALSE);
+
+  if (transparent) {
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+  }
 
   // 2. Create Window
   m_window = glfwCreateWindow(width, height, title, NULL, NULL);

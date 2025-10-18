@@ -30,11 +30,12 @@ void Application::run() {
   Time::init(config.fps);
   // 1. Initialize window and renderer
   if (!m_window->init(config.window_width, config.window_height,
-                      config.window_title.c_str(), config.window_resizable)) {
+                      config.window_title.c_str(), config.window_resizable,
+                      config.window_transparent)) {
     Log::error("Failed to initialize window!");
     return;
   }
-  if (!m_renderer->init()) {
+  if (!m_renderer->init(config.window_transparent)) {
     Log::error("Failed to initialize renderer!");
     return;
   }
