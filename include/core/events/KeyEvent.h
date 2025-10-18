@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Event.h"
+#include "core/events/Event.h"
 
 // Base class for all keyboard events.
 class KeyEvent : public Event {

@@ -1,7 +1,7 @@
 #include "core/Window.h"
-#include "core/AppEvent.h"
-#include "core/EventDispatcher.h"
 #include "core/Input.h"
+#include "core/events/AppEvent.h"
+#include "core/events/EventDispatcher.h"
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
 #include <iostream>

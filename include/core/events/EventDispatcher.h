@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Event.h"
+#include "core/events/Event.h"
 #include <functional>
 #include <typeindex>
 #include <unordered_map>

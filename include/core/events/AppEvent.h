@@ -1,6 +1,6 @@
 #pragma once
 
-#include "core/Event.h"
+#include "core/events/Event.h"
 
 class WindowResizeEvent : public Event {
 public:

@@ -1,7 +1,7 @@
 #include "core/Input.h"
-#include "core/EventDispatcher.h"
-#include "core/KeyEvent.h"
 #include "core/Window.h"
+#include "core/events/EventDispatcher.h"
+#include "core/events/KeyEvent.h"
 #include <cstring>
 
 Input::Input(GLFWwindow *window) : m_window(window) {}
