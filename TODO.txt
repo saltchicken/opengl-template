@@ -1,31 +1,3 @@
 Decouple Input with an Event System: The current input system is tightly coupled to the main loop. A more flexible approach is a callback- or queue-based event system. This allows different parts of your application (UI, game logic, camera controls) to react to events without being directly called from the main loop.
 
 Concept: Create event structs (KeyEvent, MouseEvent) and a dispatcher that objects can subscribe to. This is a larger architectural change but is fundamental for growing the project.
-
-
-
-
-
-
-
-
-
-
-Create a Resource Manager: Currently, the Renderer loads its own shader, and objects are created manually. A centralized ResourceManager can load, store, and provide access to resources like shaders, textures, and meshes. This prevents loading the same resource multiple times.
-
-Concept:
-C++
-
-// A static class to manage resources
-class ResourceManager {
-public:
-    static std::shared_ptr<Shader> LoadShader(const std::string& name, const std::string& vShaderFile, const std::string& fShaderFile);
-    static std::shared_ptr<Shader> GetShader(const std::string& name);
-    // ... similar methods for textures and meshes ...
-private:
-    // Maps for storing cached resources
-    static std::map<std::string, std::shared_ptr<Shader>> Shaders;
-};
-
-// Usage in Renderer::init()
-m_shader = ResourceManager::LoadShader("default", "shaders/shader.vert", "shaders/shader.frag");
