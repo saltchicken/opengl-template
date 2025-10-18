@@ -1,0 +1,59 @@
+#version 430 core
+
+layout (local_size_x = 256, local_size_y = 1, local_size_z = 1) in;
+
+// Struct must match the C++ version
+struct AffineTransform {
+    mat4 matrix;
+};
+
+// Input: The fractal rules
+layout(std430, binding = 0) readonly buffer TransformsBuffer {
+    AffineTransform transforms[];
+} transform_buffer;
+
+// Output: The final point positions
+layout(std430, binding = 1) writeonly buffer PointsBuffer {
+    vec4 points[];
+} point_buffer;
+
+uniform float u_time;
+uniform int u_iterations;
+
+// A simple pseudo-random number generator (hash function)
+// It produces a float between 0.0 and 1.0
+float random(vec2 st) {
+    return fract(sin(dot(st.xy, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+void main() {
+    uint id = gl_GlobalInvocationID.x;
+    if (id >= point_buffer.points.length()) {
+        return;
+    }
+
+    // Start with a random point inside a [-1, 1] cube
+    vec2 seed = vec2(id, u_time);
+    vec4 current_pos = vec4(random(seed) * 2.0 - 1.0, 
+                            random(seed.yx) * 2.0 - 1.0, 
+                            random(seed.xx) * 2.0 - 1.0, 1.0);
+    
+    int num_transforms = transform_buffer.transforms.length();
+
+    // The "Chaos Game"
+    for (int i = 0; i < u_iterations; ++i) {
+        // Get a random integer index to pick a transform
+        float rand = random(current_pos.xy + seed);
+        int transform_index = int(rand * num_transforms);
+
+        // Apply the randomly chosen transform
+        mat4 transform_matrix = transform_buffer.transforms[transform_index].matrix;
+        current_pos = transform_matrix * current_pos;
+
+        // update seed to get new random number next iteration
+        seed += 0.1;
+    }
+
+    // Write the final position to the output buffer
+    point_buffer.points[id] = current_pos;
+}

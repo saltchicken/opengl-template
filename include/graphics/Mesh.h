@@ -15,10 +15,14 @@ struct Vertex {
 
 class Mesh {
 public:
+  // --- NEW: RenderMode enum ---
+  enum class RenderMode { TRIANGLES, POINTS };
+
   // Mesh data
   std::vector<Vertex> vertices;
   std::vector<unsigned int> indices;
   std::vector<std::shared_ptr<Texture>> textures;
+  RenderMode render_mode = RenderMode::TRIANGLES; // Default to triangles
 
   // Constructor & Destructor
   Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices,
@@ -34,10 +38,12 @@ public:
   // Render the mesh
   void draw(Shader &shader);
 
-  // --- NEW INSTANCING METHOD ---
-  // Sets up the mesh for instanced drawing using an SSBO.
   void setup_instancing_ssbo(unsigned int ssbo, size_t instance_count);
   bool is_instanced() const;
+
+  // --- NEW: Method for point cloud setup ---
+  void setup_as_point_cloud(size_t point_count);
+  size_t get_point_count() const;
 
 private:
   // Render data
@@ -45,10 +51,8 @@ private:
   unsigned int m_vbo = 0;
   unsigned int m_ebo = 0;
 
-  // --- NEW INSTANCING DATA ---
-  // We don't store the SSBO handle here, as it's managed by the component.
-  // We just need to know how many instances to draw.
   size_t m_instance_count = 0;
+  size_t m_point_count = 0; // NEW
 
   void setup_mesh();
 };

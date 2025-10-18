@@ -19,6 +19,7 @@ public:
 private:
   std::shared_ptr<Shader> m_shader;
   std::shared_ptr<Shader> m_instanced_shader;
+  std::shared_ptr<Shader> m_point_shader;
   std::shared_ptr<Shader> m_background_shader;
   std::shared_ptr<Mesh> m_background_quad_mesh;
   bool m_transparent_background;
