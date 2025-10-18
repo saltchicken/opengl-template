@@ -1,3 +1,0 @@
-Implement an Event Queue (Deferred Dispatch)
-
-Add an Unsubscribe Mechanism
