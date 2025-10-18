@@ -8,12 +8,10 @@
 #include "core/events/KeyEvent.h"
 #include "core/events/MouseEvent.h"
 #include "graphics/Renderer.h"
-#include "scene/CameraComponent.h"
-#include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
-#include "scene/SceneObject.h"
 #include "utils/Log.h"
 #include "utils/ResourceManager.h"
+#include "utils/ScriptingManager.h"
 
 #include <GLFW/glfw3.h>
 
@@ -77,75 +75,16 @@ void Application::run() {
     return;
   }
 
+  ScriptingManager::init();
+
   //
   // SCENE SETUP
-  // TODO: This needs to be factored out of application.cpp
-
-  auto camera_object = std::make_shared<SceneObject>(nullptr); // No mesh needed
-  camera_object->transform->position =
-      glm::vec3(0.0f, 0.0f, 5.0f); // Position it
-  camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
-
-  // 2. Add it to the scene and set it as the active camera
-  m_active_scene->add_object(camera_object);
-  m_active_scene->set_active_camera(camera_object);
-
-  auto cube_mesh = ResourceManager::get_primitive("cube");
-  auto my_texture =
-      ResourceManager::load_texture("test", "assets/textures/test.png");
-  if (my_texture) {
-    cube_mesh->textures.push_back(my_texture);
+  //
+  if (!ScriptingManager::load_scene_script(*m_active_scene,
+                                           "scripts/scene.lua")) {
+    Log::error("Could not build scene from script. Aborting.");
+    return;
   }
-
-  // Create a quad mesh
-  auto rotating_object = std::make_shared<SceneObject>(cube_mesh);
-  rotating_object->transform->position = glm::vec3(-1.5f, 0.0f, 0.0f);
-
-  // Use the new component to add rotation behavior
-  rotating_object->add_component<PropertyAnimatorComponent>(
-      PropertyAnimatorComponent::TargetProperty::ROTATION,
-      PropertyAnimatorComponent::RotationParams{
-          glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)), 50.0f});
-
-  m_active_scene->add_object(rotating_object);
-
-  // === Object 2: The Bobbing Cube ===
-  auto bobbing_object = std::make_shared<SceneObject>(cube_mesh);
-  bobbing_object->transform->position = glm::vec3(1.5f, 0.0f, 0.0f);
-
-  // Use the same component to add position behavior (bobbing up and down)
-  bobbing_object->add_component<PropertyAnimatorComponent>(
-      PropertyAnimatorComponent::TargetProperty::POSITION,
-      PropertyAnimatorComponent::PositionParams{glm::vec3(0.0f, 1.0f, 0.0f),
-                                                2.0f, 0.5f});
-
-  m_active_scene->add_object(bobbing_object);
-
-  auto multi_anim_object = std::make_shared<SceneObject>(cube_mesh);
-  multi_anim_object->transform->position =
-      glm::vec3(0.0f, -1.5f, 0.0f); // Start it lower down
-
-  // 1. Add the rotation behavior
-  multi_anim_object->add_component<PropertyAnimatorComponent>(
-      PropertyAnimatorComponent::TargetProperty::ROTATION,
-      PropertyAnimatorComponent::RotationParams{glm::vec3(0.0f, 1.0f, 0.0f),
-                                                80.0f});
-
-  // 2. Add the position behavior TO THE SAME OBJECT
-  multi_anim_object->add_component<PropertyAnimatorComponent>(
-      PropertyAnimatorComponent::TargetProperty::POSITION,
-      PropertyAnimatorComponent::PositionParams{glm::vec3(0.0f, 1.0f, 0.0f),
-                                                1.5f, 0.7f});
-
-  m_active_scene->add_object(multi_anim_object);
-
-  auto sphere_mesh = ResourceManager::get_primitive("sphere");
-  if (my_texture) {
-    sphere_mesh->textures.push_back(my_texture);
-  }
-  auto sphere_object = std::make_shared<SceneObject>(sphere_mesh);
-  sphere_object->transform->position = glm::vec3(0.0f, 1.5f, 0.0f);
-  m_active_scene->add_object(sphere_object);
   //
   // End SCENE SETUP
   //

@@ -15,6 +15,7 @@ struct SceneObject {
   std::vector<std::shared_ptr<Component>> m_components;
 
   SceneObject(std::shared_ptr<Mesh> m);
+  SceneObject();
 
   void update(float delta_time);
 
