@@ -47,7 +47,7 @@ void Application::run() {
   // TODO: This needs to be factored out of application.cpp
 
   auto camera_object = std::make_shared<SceneObject>(nullptr);
-  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 15.0f);
+  camera_object->transform->position = glm::vec3(0.0f, 0.0f, 20.0f);
   camera_object->add_component<CameraComponent>(45.0f, 0.1f, 100.0f);
   m_active_scene->add_object(camera_object);
   m_active_scene->set_active_camera(camera_object);
