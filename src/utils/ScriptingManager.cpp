@@ -233,9 +233,10 @@ void ScriptingManager::bind_scene_types() {
       });
 
   // Scene
-  s_lua_state->new_usertype<Scene>("Scene", "add_object", &Scene::add_object,
-                                   "set_active_camera",
-                                   &Scene::set_active_camera);
+  s_lua_state->new_usertype<Scene>(
+      "Scene", "add_object", &Scene::add_object, "set_active_camera",
+      &Scene::set_active_camera, "get_active_camera",
+      &Scene::get_active_camera);
 }
 
 void ScriptingManager::run_command(const std::string &command) {
