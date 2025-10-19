@@ -4,6 +4,8 @@ set -e
 
 # Define the build directory name
 BUILD_DIR="build"
+# Detects the number of CPU cores
+NUM_CORES=$(nproc)
 
 # Clean and create the build directory
 echo "--- Cleaning and preparing build directory ---"
@@ -16,6 +18,6 @@ cmake -S . -B "$BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE
 
 # Build the project
 echo "--- Building project ---"
-cmake --build "$BUILD_DIR"
+cmake --build "$BUILD_DIR" -- -j"$NUM_CORES"
 
 echo "--- Build complete! ---"
