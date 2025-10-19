@@ -38,7 +38,7 @@ void Input::key_callback(GLFWwindow *window, int key, int scancode, int action,
 
 // Instance-specific implementation of the callback logic
 void Input::key_callback_impl(int key, int action) {
-  if (key >= 0 && key < 1024) {
+  if (key >= 0 && key <= GLFW_KEY_LAST) {
     if (action == GLFW_PRESS) {
       m_current_key_states[key] = true;
     } else if (action == GLFW_RELEASE) {
