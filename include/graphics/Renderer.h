@@ -1,5 +1,6 @@
 #pragma once
 #include <memory>
+#include <string>
 
 class Shader;
 class Scene;
@@ -15,6 +16,7 @@ public:
   void update(float delta_time);
   void draw(Scene &scene, unsigned int screen_width,
             unsigned int screen_height);
+  void set_background_shader(const std::string &name);
 
 private:
   std::shared_ptr<Shader> m_shader; // Manages the shader's lifetime

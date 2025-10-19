@@ -1,5 +1,6 @@
 #include "utils/ScriptingManager.h"
 #include "core/Settings.h"
+#include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
@@ -25,6 +26,7 @@ void ScriptingManager::init() {
   // Bind all our C++ types and functions
   bind_core_types();
   bind_settings_types();
+  bind_renderer_types();
   bind_utility_types();
   bind_component_types();
   bind_scene_types();
@@ -141,14 +143,18 @@ void ScriptingManager::bind_settings_types() {
   );
 }
 
+void ScriptingManager::bind_renderer_types() {
+  s_lua_state->new_usertype<Renderer>("Renderer", "set_background_shader",
+                                      &Renderer::set_background_shader);
+}
+
 void ScriptingManager::bind_utility_types() {
   // ResourceManager
   auto resource_manager_type =
       s_lua_state->new_usertype<ResourceManager>("ResourceManager");
   resource_manager_type["get_primitive"] = &ResourceManager::get_primitive;
   resource_manager_type["load_texture"] = &ResourceManager::load_texture;
-  resource_manager_type["load_shader"] =
-      &ResourceManager::load_shader; // ‼️ Expose load_shader
+  resource_manager_type["load_shader"] = &ResourceManager::load_shader;
 }
 
 void ScriptingManager::bind_component_types() {
@@ -216,7 +222,7 @@ void ScriptingManager::bind_scene_types() {
                                    &Scene::set_active_camera);
 }
 
-void ScriptingManager::execute_string(Scene &scene,
+void ScriptingManager::execute_string(Scene &scene, Renderer &renderer,
                                       const std::string &command) {
   if (!s_lua_state) {
     Log::error("ScriptingManager not initialized.");
@@ -225,6 +231,7 @@ void ScriptingManager::execute_string(Scene &scene,
   try {
     // Set a global variable 'scene' to the current scene object
     (*s_lua_state)["scene"] = &scene;
+    (*s_lua_state)["renderer"] = &renderer;
 
     auto result = s_lua_state->script(command);
 

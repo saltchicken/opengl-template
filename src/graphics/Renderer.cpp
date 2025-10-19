@@ -91,3 +91,13 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
     }
   }
 }
+
+void Renderer::set_background_shader(const std::string &name) {
+  auto new_shader = ResourceManager::get_shader(name);
+  if (new_shader) {
+    m_background_shader = new_shader;
+    Log::info("Background shader switched to '" + name + "'");
+  } else {
+    Log::warn("Failed to find shader '" + name + "' for background.");
+  }
+}

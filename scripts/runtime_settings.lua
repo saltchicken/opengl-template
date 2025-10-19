@@ -3,6 +3,7 @@ function load_shaders()
 	print("[Lua] Loading runtime shaders...")
 	ResourceManager.load_shader("default", "shaders/shader.vert", "shaders/shader.frag")
 	ResourceManager.load_shader("background", "shaders/background.vert", "shaders/background.frag")
+	ResourceManager.load_shader("background_alt", "shaders/background.vert", "shaders/background_alt.frag")
 	-- You could load alternative shaders here as well for interactive switching
 	-- ResourceManager.load_shader("cel_shader", "shaders/cel.vert", "shaders/cel.frag")
 end

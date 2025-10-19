@@ -65,7 +65,7 @@ void Application::process_script_commands() {
   // Execute commands outside the lock
   for (const auto &command : commands_to_run) {
     Log::info("Executing: " + command);
-    ScriptingManager::execute_string(*m_active_scene, command);
+    ScriptingManager::execute_string(*m_active_scene, *m_renderer, command);
   }
 }
 
@@ -101,14 +101,11 @@ void Application::on_key_pressed(KeyPressedEvent &event) {
 }
 
 void Application::run() {
-  // ‼️ --- NEW INITIALIZATION ORDER ---
-
-  // 1. Load critical settings from TOML first. We need these for the window.
+  // 1. Load critical settings TOML first.
   m_settings->load("settings.toml");
   const auto &config = m_settings->get_config();
 
-  // 2. Initialize the window. This is CRITICAL because it creates the OpenGL
-  // context.
+  // 2. Initialize the window and OpenGL context
   if (!m_window->init(config.window_width, config.window_height,
                       config.window_title.c_str(), config.window_resizable,
                       config.window_transparent)) {
@@ -116,7 +113,7 @@ void Application::run() {
     return;
   }
 
-  // 3. Now that we have a context, we can initialize scripting and load assets.
+  // 3. Initialize scripting and load assets.
   ScriptingManager::init();
   load_scripts();
 
@@ -132,8 +129,10 @@ void Application::run() {
     return;
   }
 
-  // 6. Initialize time and start the console thread.
+  // 6. Initialize time.
   Time::init(config.fps);
+
+  // 7. Start the console thread
   m_console_thread = std::thread([this]() {
     Log::info(
         "Interactive Lua console started. Type commands and press Enter.");
@@ -146,8 +145,6 @@ void Application::run() {
       }
     }
   });
-
-  // ‼️ Redundant scene setup block has been REMOVED from here.
 
   // --- MAIN LOOP ---
   Input *input = m_window->get_input();
