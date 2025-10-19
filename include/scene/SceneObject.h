@@ -7,7 +7,7 @@
 #include <typeindex>
 #include <unordered_map>
 
-struct SceneObject {
+struct SceneObject : std::enable_shared_from_this<SceneObject> {
   // Use a shared_ptr so multiple objects can share the same mesh data (e.g., a
   // forest of identical trees)
   std::shared_ptr<Mesh> mesh;
@@ -23,7 +23,20 @@ struct SceneObject {
   template <typename T, typename... Args>
   std::shared_ptr<T> add_component(Args &&...args) {
     auto new_comp = std::make_shared<T>(std::forward<Args>(args)...);
-    new_comp->m_owner = this; // Set the owner
+    // ‼️ This is not valid. You can't assign a raw `this` to a weak_ptr.
+    // new_comp->m_owner = this;
+    // Instead, we will need to pass a shared_ptr of this object later.
+    // We can do this in the scene when the object is created and is a
+    // shared_ptr Or, if SceneObject itself will be managed by a shared_ptr, it
+    // should inherit from std::enable_shared_from_this Let's assume SceneObject
+    // should manage this itself.
+
+    // TODO: This is a hack. Fix this
+    // This requires a bit more of a refactor. A common way is to make
+    // add_component be called only on a shared_ptr<SceneObject> or have the
+    // scene do it. A simpler immediate fix is to do it after creation. But the
+    // BEST way is to use enable_shared_from_this.
+    new_comp->m_owner = shared_from_this();
     new_comp->awake();
     m_components[std::type_index(typeid(T))] = new_comp;
     return new_comp;

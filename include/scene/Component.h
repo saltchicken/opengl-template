@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 class SceneObject; // Forward-declaration
 
 class Component {
@@ -11,6 +13,6 @@ public:
   virtual void update(float delta_time) {}
 
 protected:
-  SceneObject *m_owner = nullptr; // Pointer back to the owner object
+  std::weak_ptr<SceneObject> m_owner;
   friend class SceneObject;
 };
