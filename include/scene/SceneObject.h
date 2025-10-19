@@ -4,6 +4,8 @@
 #include "scene/Component.h"
 #include "scene/TransformComponent.h"
 #include <memory>
+#include <typeindex>
+#include <unordered_map>
 #include <vector>
 
 struct SceneObject {
@@ -12,7 +14,7 @@ struct SceneObject {
   std::shared_ptr<Mesh> mesh;
   std::shared_ptr<TransformComponent> transform;
 
-  std::vector<std::shared_ptr<Component>> m_components;
+  std::unordered_map<std::type_index, std::shared_ptr<Component>> m_components;
 
   SceneObject(std::shared_ptr<Mesh> m);
   SceneObject();
@@ -24,20 +26,16 @@ struct SceneObject {
     auto new_comp = std::make_shared<T>(std::forward<Args>(args)...);
     new_comp->m_owner = this; // Set the owner
     new_comp->awake();
-    m_components.push_back(new_comp);
+    m_components[std::type_index(typeid(T))] = new_comp;
     return new_comp;
   }
 
   // Finds and returns the first component of the specified type.
   template <typename T> std::shared_ptr<T> get_component() {
-    for (const auto &comp : m_components) {
-      // Attempt to cast the component to the desired type T
-      if (auto casted_comp = std::dynamic_pointer_cast<T>(comp)) {
-        // If the cast is successful, return the component
-        return casted_comp;
-      }
+    auto it = m_components.find(std::type_index(typeid(T)));
+    if (it != m_components.end()) {
+      return std::static_pointer_cast<T>(it->second);
     }
-    // If no component of type T is found, return nullptr
     return nullptr;
   }
 };

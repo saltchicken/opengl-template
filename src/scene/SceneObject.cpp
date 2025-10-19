@@ -11,7 +11,7 @@ SceneObject::SceneObject()
 // The update function loops through all components and calls their update
 // methods
 void SceneObject::update(float delta_time) {
-  for (const auto &component : m_components) {
-    component->update(delta_time);
+  for (const auto &pair : m_components) {
+    pair.second->update(delta_time);
   }
 }
