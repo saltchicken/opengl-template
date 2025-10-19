@@ -29,6 +29,8 @@ public:
   unsigned int get_width() const { return m_width; }
   unsigned int get_height() const { return m_height; }
 
+  GLFWwindow *get_glfw_window() const { return m_window; }
+
 private:
   static void framebuffer_size_callback(GLFWwindow *window, int width,
                                         int height);

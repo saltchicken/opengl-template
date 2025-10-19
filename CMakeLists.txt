@@ -30,13 +30,16 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/ThePhD/sol2.git
   GIT_TAG        main
 )
-FetchContent_MakeAvailable(glm sol2)
-set_property(DIRECTORY ${glm_SOURCE_DIR} PROPERTY SYSTEM TRUE)
+FetchContent_Declare(
+  imgui
+  GIT_REPOSITORY https://github.com/ocornut/imgui.git
+  GIT_TAG        v1.90.8 # Use a specific, recent tag
+)
+FetchContent_MakeAvailable(glm sol2 imgui)
 
 # --- Find Dependencies ---
 find_package(OpenGL REQUIRED)
 find_package(glfw3 REQUIRED)
-# Simplified Lua search to only find the standard Lua package.
 find_package(Lua REQUIRED)
 message(STATUS "Found Lua: ${LUA_LIBRARIES}")
 
@@ -44,6 +47,12 @@ message(STATUS "Found Lua: ${LUA_LIBRARIES}")
 file(GLOB_RECURSE SOURCE_FILES "src/*.cpp")
 list(APPEND SOURCE_FILES
     libs/glad/src/glad.c
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
 )
 # --- Create Executable ---
 add_executable(OpenGLTemplate ${SOURCE_FILES})
@@ -57,15 +66,17 @@ target_include_directories(OpenGLTemplate PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/libs
     ${OPENGL_INCLUDE_DIR}
     ${glfw3_INCLUDE_DIRS}
-    ${LUA_INCLUDE_DIR} # Add Lua include dir
-    ${sol2_SOURCE_DIR}/include # sol2 include
+    ${LUA_INCLUDE_DIR}
+    ${imgui_SOURCE_DIR}
+    ${imgui_SOURCE_DIR}/backends
 )
 target_link_libraries(OpenGLTemplate PRIVATE
     ${OPENGL_LIBRARIES}
     glfw
     tomlplusplus
     glm
-    ${LUA_LIBRARIES} # Link Lua library
+    ${LUA_LIBRARIES}
+    sol2
 )
 function(copy_directory_to_target_dir target directory)
     get_target_property(target_dir ${target} BINARY_DIR)

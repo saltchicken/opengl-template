@@ -10,6 +10,7 @@
 #include "core/events/MouseEvent.h"
 #include "graphics/Renderer.h"
 #include "scene/Scene.h"
+#include "utils/DebugConsole.h"
 #include "utils/Log.h"
 #include "utils/ResourceManager.h"
 #include "utils/ScriptingManager.h"
@@ -20,22 +21,14 @@ Application::Application() {
   m_window = std::make_unique<Window>();
   m_settings = std::make_unique<Settings>();
   m_renderer = std::make_unique<Renderer>();
-  // Initialize camera looking at the origin from 3 units away
   m_active_scene = std::make_unique<Scene>();
   m_scripting_context = std::make_unique<ScriptingContext>();
+  m_console = std::make_unique<DebugConsole>();
 
   subscribe_to_events();
 }
 
-Application::~Application() {
-
-  if (m_console_thread.joinable()) {
-    // TODO: A real app might need a more graceful shutdown signal
-    // but for this, we can detach as the app is closing.
-    m_console_thread.detach();
-  }
-  ResourceManager::clear();
-};
+Application::~Application() { ResourceManager::clear(); };
 
 void Application::load_scripts() {
   Log::info("--- Loading Scripts ---");
@@ -66,7 +59,8 @@ void Application::process_script_commands() {
 
   // Execute commands outside the lock
   for (const auto &command : commands_to_run) {
-    Log::info("Executing: " + command);
+    // Log::info("Executing: " + command);
+    m_console->add_log("Executing: " + command);
     ScriptingManager::run_command(command);
   }
 }
@@ -97,6 +91,7 @@ void Application::subscribe_to_events() {
 
 void Application::on_key_pressed(KeyPressedEvent &event) {
   Log::debug(event.to_string());
+  m_console->on_key_pressed(event.get_key_code());
   if (event.get_key_code() == GLFW_KEY_ESCAPE) {
     m_window->set_should_close(true);
   }
@@ -114,6 +109,12 @@ void Application::run() {
     Log::error("Failed to initialize window!");
     return;
   }
+  m_console->init(
+      m_window->get_glfw_window()); // You'll need to add this getter
+  m_console->set_command_callback([this](const std::string &command) {
+    std::lock_guard<std::mutex> lock(m_command_mutex);
+    m_command_queue.push_back(command);
+  });
 
   // 3. Initialize scripting and load assets.
   ScriptingManager::init();
@@ -138,20 +139,6 @@ void Application::run() {
   // 6. Initialize time.
   Time::init(config.fps);
 
-  // 7. Start the console thread
-  m_console_thread = std::thread([this]() {
-    Log::info(
-        "Interactive Lua console started. Type commands and press Enter.");
-    std::string line;
-    while (std::getline(std::cin, line)) {
-      if (!line.empty()) {
-        // Lock the mutex to safely push the command to the queue
-        std::lock_guard<std::mutex> lock(m_command_mutex);
-        m_command_queue.push_back(line);
-      }
-    }
-  });
-
   // --- MAIN LOOP ---
   Input *input = m_window->get_input();
   Log::debug("Starting main loop");
@@ -174,6 +161,8 @@ void Application::run() {
     m_renderer->update(delta_time);
     m_renderer->draw(*m_active_scene, m_window->get_width(),
                      m_window->get_height());
+    m_console->draw();
+
     m_window->swap_buffers();
     input->update();
     Time::end_frame();

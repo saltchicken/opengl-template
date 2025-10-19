@@ -14,6 +14,7 @@ class Scene;
 class Event;
 class KeyPressedEvent;
 struct ScriptingContext;
+class DebugConsole;
 
 class Application {
 public:
@@ -34,9 +35,9 @@ private:
   std::unique_ptr<Renderer> m_renderer;
   std::unique_ptr<Scene> m_active_scene;
   std::unique_ptr<ScriptingContext> m_scripting_context;
+  std::unique_ptr<DebugConsole> m_console;
   std::vector<ScopedSubscription> m_subscriptions;
 
-  std::thread m_console_thread;
   std::mutex m_command_mutex;
   std::vector<std::string> m_command_queue;
 };
