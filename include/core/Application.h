@@ -13,6 +13,7 @@ class Renderer;
 class Scene;
 class Event;
 class KeyPressedEvent;
+struct ScriptingContext;
 
 class Application {
 public:
@@ -32,7 +33,7 @@ private:
   std::unique_ptr<Settings> m_settings;
   std::unique_ptr<Renderer> m_renderer;
   std::unique_ptr<Scene> m_active_scene;
-
+  std::unique_ptr<ScriptingContext> m_scripting_context;
   std::vector<ScopedSubscription> m_subscriptions;
 
   std::thread m_console_thread;

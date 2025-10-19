@@ -1,4 +1,5 @@
 #include "utils/ScriptingManager.h"
+#include "core/ScriptingContext.h"
 #include "core/Settings.h"
 #include "graphics/Renderer.h"
 #include "scene/CameraComponent.h"
@@ -26,12 +27,21 @@ void ScriptingManager::init() {
   // Bind all our C++ types and functions
   bind_core_types();
   bind_settings_types();
+  bind_context_types();
   bind_renderer_types();
   bind_utility_types();
   bind_component_types();
   bind_scene_types();
 
   Log::info("ScriptingManager initialized.");
+}
+
+void ScriptingManager::set_context(ScriptingContext &context) {
+  if (!s_lua_state) {
+    Log::error("ScriptingManager not initialized.");
+    return;
+  }
+  (*s_lua_state)["App"] = &context;
 }
 
 bool ScriptingManager::load_runtime_settings(Settings &settings,
@@ -143,6 +153,12 @@ void ScriptingManager::bind_settings_types() {
   );
 }
 
+void ScriptingManager::bind_context_types() {
+  s_lua_state->new_usertype<ScriptingContext>(
+      "ScriptingContext", "scene", &ScriptingContext::scene, "renderer",
+      &ScriptingContext::renderer);
+}
+
 void ScriptingManager::bind_renderer_types() {
   s_lua_state->new_usertype<Renderer>("Renderer", "set_background_shader",
                                       &Renderer::set_background_shader);
@@ -222,17 +238,12 @@ void ScriptingManager::bind_scene_types() {
                                    &Scene::set_active_camera);
 }
 
-void ScriptingManager::execute_string(Scene &scene, Renderer &renderer,
-                                      const std::string &command) {
+void ScriptingManager::run_command(const std::string &command) {
   if (!s_lua_state) {
     Log::error("ScriptingManager not initialized.");
     return;
   }
   try {
-    // Set a global variable 'scene' to the current scene object
-    (*s_lua_state)["scene"] = &scene;
-    (*s_lua_state)["renderer"] = &renderer;
-
     auto result = s_lua_state->script(command);
 
     if (!result.valid()) {

@@ -1,5 +1,6 @@
 #include "core/Application.h"
 #include "core/Input.h"
+#include "core/ScriptingContext.h"
 #include "core/Settings.h"
 #include "core/Time.h"
 #include "core/Window.h"
@@ -21,6 +22,7 @@ Application::Application() {
   m_renderer = std::make_unique<Renderer>();
   // Initialize camera looking at the origin from 3 units away
   m_active_scene = std::make_unique<Scene>();
+  m_scripting_context = std::make_unique<ScriptingContext>();
 
   subscribe_to_events();
 }
@@ -65,7 +67,7 @@ void Application::process_script_commands() {
   // Execute commands outside the lock
   for (const auto &command : commands_to_run) {
     Log::info("Executing: " + command);
-    ScriptingManager::execute_string(*m_active_scene, *m_renderer, command);
+    ScriptingManager::run_command(command);
   }
 }
 
@@ -115,6 +117,10 @@ void Application::run() {
 
   // 3. Initialize scripting and load assets.
   ScriptingManager::init();
+  m_scripting_context->scene = m_active_scene.get();
+  m_scripting_context->renderer = m_renderer.get();
+
+  ScriptingManager::set_context(*m_scripting_context);
   load_scripts();
 
   // 4. Check if loading the scene was successful.
