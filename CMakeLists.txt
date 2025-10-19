@@ -33,7 +33,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   imgui
   GIT_REPOSITORY https://github.com/ocornut/imgui.git
-  GIT_TAG        v1.90.8 # Use a specific, recent tag
+  GIT_TAG        v1.92.4 # Use a specific, recent tag
 )
 FetchContent_MakeAvailable(glm sol2 imgui)
 
