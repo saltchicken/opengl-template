@@ -1,4 +1,4 @@
-#include "graphics/Renderer.h"
+#include "graphics/SceneRenderer.h"
 #include "core/Settings.h"
 #include "scene/CameraComponent.h"
 #include "scene/Scene.h"
@@ -7,10 +7,10 @@
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-Renderer::Renderer() = default;
-Renderer::~Renderer() = default;
+SceneRenderer::SceneRenderer() = default;
+SceneRenderer::~SceneRenderer() = default;
 
-bool Renderer::init(const Config &config) {
+bool SceneRenderer::init(const Config &config) {
   m_transparent_background = config.window_transparent;
   glEnable(GL_DEPTH_TEST);
 
@@ -43,12 +43,12 @@ bool Renderer::init(const Config &config) {
   return true;
 }
 
-void Renderer::update(float delta_time) {
+void SceneRenderer::update(float delta_time) {
   // std::cout << delta_time << std::endl;
 }
 
-void Renderer::draw(Scene &scene, unsigned int screen_width,
-                    unsigned int screen_height) {
+void SceneRenderer::draw(Scene &scene, unsigned int screen_width,
+                         unsigned int screen_height) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   if (!m_transparent_background && m_background_shader) {
@@ -60,9 +60,11 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
   }
 
   auto camera_object = scene.get_active_camera();
+  // TODO: Is there a way to skip having to check if camera_object exists? Does
+  // this provide any performance boost?
   if (!camera_object) {
     Log::error("No active camera object in the scene.");
-    return; // No camera, no rendering
+    return; // No camera, nothing to render
   }
 
   // 2. Get the required components from the camera object
@@ -92,7 +94,7 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
   }
 }
 
-void Renderer::set_background_shader(const std::string &name) {
+void SceneRenderer::set_background_shader(const std::string &name) {
   auto new_shader = ResourceManager::get_shader(name);
   if (new_shader) {
     m_background_shader = new_shader;

@@ -8,7 +8,9 @@
 #include "core/events/EventDispatcher.h"
 #include "core/events/KeyEvent.h"
 #include "core/events/MouseEvent.h"
-#include "graphics/Renderer.h"
+#include "graphics/BackgroundRenderer.h"
+#include "graphics/IRenderer.h"
+#include "graphics/SceneRenderer.h"
 #include "scene/Scene.h"
 #include "utils/DebugConsole.h"
 #include "utils/Log.h"
@@ -20,7 +22,6 @@
 Application::Application() {
   m_window = std::make_unique<Window>();
   m_settings = std::make_unique<Settings>();
-  m_renderer = std::make_unique<Renderer>();
   m_active_scene = std::make_unique<Scene>();
   m_scripting_context = std::make_unique<ScriptingContext>();
   m_console = std::make_unique<DebugConsole>();
@@ -40,7 +41,7 @@ void Application::load_scripts() {
 
   // Load the scene from its dedicated script
   if (!ScriptingManager::load_scene_script(*m_active_scene,
-                                           "scripts/scene.lua")) {
+                                           "scripts/empty.lua")) {
     Log::error("FATAL: Could not build scene from script.");
   }
   Log::info("--- Script Loading Complete ---");
@@ -119,18 +120,21 @@ void Application::run() {
   // 3. Initialize scripting and load assets.
   ScriptingManager::init();
   m_scripting_context->scene = m_active_scene.get();
-  m_scripting_context->renderer = m_renderer.get();
 
   ScriptingManager::set_context(*m_scripting_context);
   load_scripts();
 
-  // 4. Check if loading the scene was successful.
+  // 5. Initialize the renderer, which depends on loaded shaders.
   if (m_active_scene->get_scene_objects().empty()) {
-    Log::error("Scene is empty after loading, aborting run().");
-    return;
+    Log::info("Scene is empty. Creating BackgroundRenderer.");
+    m_renderer = std::make_unique<BackgroundRenderer>();
+  } else {
+    Log::info("Scene has objects. Creating SceneRenderer.");
+    m_renderer = std::make_unique<SceneRenderer>();
   }
 
-  // 5. Initialize the renderer, which depends on loaded shaders.
+  m_scripting_context->renderer = m_renderer.get();
+  // 5. Initialize the chosen renderer.
   if (!m_renderer->init(config)) {
     Log::error("Failed to initialize renderer!");
     return;

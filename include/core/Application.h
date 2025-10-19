@@ -9,7 +9,7 @@
 // Forward declarations
 class Window;
 class Settings;
-class Renderer;
+class IRenderer;
 class Scene;
 class Event;
 class KeyPressedEvent;
@@ -32,7 +32,7 @@ private:
 
   std::unique_ptr<Window> m_window;
   std::unique_ptr<Settings> m_settings;
-  std::unique_ptr<Renderer> m_renderer;
+  std::unique_ptr<IRenderer> m_renderer;
   std::unique_ptr<Scene> m_active_scene;
   std::unique_ptr<ScriptingContext> m_scripting_context;
   std::unique_ptr<DebugConsole> m_console;

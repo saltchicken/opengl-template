@@ -2,10 +2,10 @@
 
 // Forward declarations of the systems we want to expose to Lua
 class Scene;
-class Renderer;
+class IRenderer;
 
 struct ScriptingContext {
   Scene *scene = nullptr;
-  Renderer *renderer = nullptr;
+  IRenderer *renderer = nullptr;
   // AudioEngine* audioEngine = nullptr;
 };

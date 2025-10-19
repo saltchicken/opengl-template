@@ -1,4 +1,5 @@
 #pragma once
+#include "graphics/IRenderer.h"
 #include <memory>
 #include <string>
 
@@ -7,21 +8,22 @@ class Scene;
 class Mesh;
 struct Config;
 
-class Renderer {
+class SceneRenderer : public IRenderer {
 public:
-  Renderer();
-  ~Renderer();
+  SceneRenderer();
+  ~SceneRenderer();
 
-  bool init(const Config &config);
-  void update(float delta_time);
+  // Use the override keyword for clarity and safety
+  bool init(const Config &config) override;
+  void update(float delta_time) override;
   void draw(Scene &scene, unsigned int screen_width,
-            unsigned int screen_height);
+            unsigned int screen_height) override;
+
   void set_background_shader(const std::string &name);
 
 private:
-  std::shared_ptr<Shader> m_shader; // Manages the shader's lifetime
+  std::shared_ptr<Shader> m_shader;
   std::shared_ptr<Shader> m_background_shader;
   std::shared_ptr<Mesh> m_background_quad_mesh;
-
   bool m_transparent_background;
 };

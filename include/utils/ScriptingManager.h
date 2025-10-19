@@ -6,7 +6,7 @@
 class ScriptingContext;
 class Scene;
 class Settings;
-class Renderer;
+class IRenderer;
 
 class ScriptingManager {
 public:

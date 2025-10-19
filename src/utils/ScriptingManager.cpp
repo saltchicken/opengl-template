@@ -1,7 +1,8 @@
 #include "utils/ScriptingManager.h"
 #include "core/ScriptingContext.h"
 #include "core/Settings.h"
-#include "graphics/Renderer.h"
+#include "graphics/IRenderer.h"
+#include "graphics/SceneRenderer.h"
 #include "scene/CameraComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
@@ -160,8 +161,22 @@ void ScriptingManager::bind_context_types() {
 }
 
 void ScriptingManager::bind_renderer_types() {
-  s_lua_state->new_usertype<Renderer>("Renderer", "set_background_shader",
-                                      &Renderer::set_background_shader);
+  s_lua_state->new_usertype<IRenderer>(
+      "Renderer", "set_background_shader",
+      // This lambda is our new, safe binding.
+      [](IRenderer &renderer, const std::string &shader_name) {
+        // Try to safely downcast the generic renderer to a SceneRenderer.
+        if (SceneRenderer *scene_renderer =
+                dynamic_cast<SceneRenderer *>(&renderer)) {
+          // If the cast is successful, call the method.
+          scene_renderer->set_background_shader(shader_name);
+        } else {
+          // Otherwise, the active renderer is a BackgroundRenderer (or some
+          // other type) that doesn't support this. Log a warning.
+          Log::warn("The active renderer does not support changing the "
+                    "background shader.");
+        }
+      });
 }
 
 void ScriptingManager::bind_utility_types() {
