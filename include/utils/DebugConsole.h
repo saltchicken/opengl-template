@@ -5,6 +5,7 @@
 #include <vector>
 
 struct GLFWwindow;
+struct ImGuiInputTextCallbackData;
 
 class DebugConsole {
 public:
@@ -23,6 +24,8 @@ public:
 
 private:
   void execute_command(const std::string &command);
+
+  static int text_edit_callback(ImGuiInputTextCallbackData *data);
 
   char m_input_buffer[256];
   std::vector<std::string> m_log_history;

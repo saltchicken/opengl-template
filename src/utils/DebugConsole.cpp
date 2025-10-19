@@ -6,6 +6,51 @@
 #include <iostream>
 #include <utility>
 
+int DebugConsole::text_edit_callback(ImGuiInputTextCallbackData *data) {
+  // data->UserData contains the 'this' pointer we passed to InputText()
+  DebugConsole *console = static_cast<DebugConsole *>(data->UserData);
+
+  if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory) {
+    // Up arrow was pressed
+    if (data->EventKey == ImGuiKey_UpArrow) {
+      if (!console->m_command_history.empty()) {
+        if (console->m_history_pos == -1) {
+          // If not browsing history, start from the latest command
+          console->m_history_pos = console->m_command_history.size() - 1;
+        } else if (console->m_history_pos > 0) {
+          // Go to the previous command
+          console->m_history_pos--;
+        }
+      }
+    }
+    // Down arrow was pressed
+    else if (data->EventKey == ImGuiKey_DownArrow) {
+      if (console->m_history_pos != -1) {
+        if (console->m_history_pos <
+            static_cast<int>(console->m_command_history.size()) - 1) {
+          // Go to the next command
+          console->m_history_pos++;
+        } else {
+          // Reached the end, clear the buffer and exit history mode
+          console->m_history_pos = -1;
+          data->DeleteChars(0, data->BufTextLen);
+          return 0;
+        }
+      }
+    }
+
+    // If we are browsing history, update the input buffer
+    if (console->m_history_pos != -1) {
+      const std::string &history_command =
+          console->m_command_history[console->m_history_pos];
+      // Update the buffer in the ImGui widget
+      data->DeleteChars(0, data->BufTextLen);
+      data->InsertChars(0, history_command.c_str());
+    }
+  }
+  return 0;
+}
+
 DebugConsole::DebugConsole()
     : m_input_buffer{0}, m_history_pos(-1), m_is_visible(false) {}
 
@@ -94,13 +139,10 @@ void DebugConsole::draw() {
         ImGuiInputTextFlags_EnterReturnsTrue |
         ImGuiInputTextFlags_CallbackHistory;
     if (ImGui::InputText("Input", m_input_buffer, IM_ARRAYSIZE(m_input_buffer),
-                         input_text_flags,
-                         [](ImGuiInputTextCallbackData *data) -> int {
-                           // TODO: Implement history callback
-                           return 0;
-                         })) {
+                         input_text_flags, &DebugConsole::text_edit_callback,
+                         (void *)this)) {
       execute_command(m_input_buffer);
-      ImGui::SetKeyboardFocusHere(-1); // Auto re-focus
+      ImGui::SetKeyboardFocusHere(-1); // Auto re-focus after entering
     }
   }
   ImGui::End();
