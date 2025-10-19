@@ -2,16 +2,30 @@
 set -e
 
 BUILD_DIR="build"
-EXECUTABLE_NAME="OpenGLTemplate" # <-- Change to your target name if needed
-NUM_CORES=$(nproc)               # Detects the number of CPU cores
+NUM_CORES=$(nproc)
 
-# Parse command-line arguments
+# Detect executable name(s) from CMakeLists.txt
+EXECUTABLES=($(grep -Po '(?<=add_executable\()\s*\K[^\s\)]+' CMakeLists.txt))
+
+if [[ ${#EXECUTABLES[@]} -eq 0 ]]; then
+  echo "Error: No add_executable() found in CMakeLists.txt."
+  exit 1
+elif [[ ${#EXECUTABLES[@]} -eq 1 ]]; then
+  EXECUTABLE_NAME="${EXECUTABLES[0]}"
+else
+  echo "Multiple executables found:"
+  select EXECUTABLE_NAME in "${EXECUTABLES[@]}"; do
+    [[ -n "$EXECUTABLE_NAME" ]] && break
+  done
+fi
+
+# Handle command line arguments
 if [[ "$1" == "--build" ]]; then
   echo "--- Rebuilding from scratch ---"
   rm -rf "$BUILD_DIR"
 fi
 
-# If no build directory, configure and build
+# Configure and build if needed
 if [[ ! -d "$BUILD_DIR" ]]; then
   echo "--- No build folder found. Building project ---"
   cmake -S . -B "$BUILD_DIR" -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_BUILD_TYPE=Debug
@@ -20,14 +34,13 @@ if [[ ! -d "$BUILD_DIR" ]]; then
   echo "--- Build complete! ---"
 fi
 
-# Locate executable if it exists
-EXEC_PATH="$BUILD_DIR/$EXECUTABLE_NAME"
+# Locate executable (supports nested build targets)
+EXEC_PATH=$(find "$BUILD_DIR" -type f -name "$EXECUTABLE_NAME" -perm -u+x | head -n 1)
 
 if [[ -f "$EXEC_PATH" ]]; then
-  echo "--- Running executable ---"
+  echo "--- Running $EXECUTABLE_NAME ---"
   "$EXEC_PATH"
 else
-  echo "Error: Executable not found at $EXEC_PATH"
-  echo "Make sure the target name matches your CMake project or set EXECUTABLE_NAME correctly."
+  echo "Error: Executable '$EXECUTABLE_NAME' not found in $BUILD_DIR"
   exit 1
 fi
