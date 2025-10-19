@@ -25,5 +25,6 @@ private:
   std::shared_ptr<Shader> m_shader;
   std::shared_ptr<Shader> m_canvas_shader;
   std::shared_ptr<Mesh> m_canvas_quad_mesh;
+  // TODO: m_transparent_canvas is not necessary. Fix it in implementation
   bool m_transparent_canvas;
 };
