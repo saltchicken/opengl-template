@@ -6,7 +6,6 @@
 #include <memory>
 #include <typeindex>
 #include <unordered_map>
-#include <vector>
 
 struct SceneObject {
   // Use a shared_ptr so multiple objects can share the same mesh data (e.g., a
