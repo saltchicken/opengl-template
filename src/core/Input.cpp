@@ -48,14 +48,14 @@ void Input::key_callback_impl(int key, int action) {
 }
 
 bool Input::is_key_down(int key) const {
-  if (key >= 0 && key < 1024) {
+  if (key >= 0 && key <= GLFW_KEY_LAST) {
     return m_current_key_states[key];
   }
   return false;
 }
 
 bool Input::is_key_pressed(int key) const {
-  if (key >= 0 && key < 1024) {
+  if (key >= 0 && key <= GLFW_KEY_LAST) {
     // Was the key up last frame, but is down this frame?
     return m_current_key_states[key] && !m_previous_key_states[key];
   }
@@ -63,7 +63,7 @@ bool Input::is_key_pressed(int key) const {
 }
 
 bool Input::is_key_released(int key) const {
-  if (key >= 0 && key < 1024) {
+  if (key >= 0 && key <= GLFW_KEY_LAST) {
     // Was the key down last frame, but is up this frame?
     return !m_current_key_states[key] && m_previous_key_states[key];
   }
