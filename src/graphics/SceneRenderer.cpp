@@ -6,15 +6,15 @@
 #include "utils/ResourceManager.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <sstream>
 
 SceneRenderer::SceneRenderer() = default;
 SceneRenderer::~SceneRenderer() = default;
 
 bool SceneRenderer::init(const Config &config) {
-  m_transparent_canvas = config.window_transparent;
   glEnable(GL_DEPTH_TEST);
 
-  if (m_transparent_canvas) {
+  if (config.window_transparent) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Transparent black
   } else {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
@@ -88,12 +88,34 @@ void SceneRenderer::draw(Scene &scene, unsigned int screen_width,
   }
 }
 
-void SceneRenderer::set_canvas_shader(const std::string &name) {
-  auto new_shader = ResourceManager::get_shader(name);
-  if (new_shader) {
-    m_canvas_shader = new_shader;
-    Log::info("Canvas shader switched to '" + name + "'");
-  } else {
-    Log::warn("Failed to find shader '" + name + "' for canvas.");
+void SceneRenderer::execute_command(const std::string &command_line) {
+  std::stringstream ss(command_line);
+  std::string command;
+  ss >> command; // Read the first word as the command
+
+  if (command == "set_canvas_shader") {
+    std::string shader_name;
+    ss >> shader_name; // Read the next word as the argument
+    if (!shader_name.empty()) {
+      auto new_shader = ResourceManager::get_shader(shader_name);
+      if (new_shader) {
+        m_canvas_shader = new_shader;
+        Log::info("Canvas shader switched to '" + shader_name + "'");
+      } else {
+        Log::warn("Failed to find shader '" + shader_name + "' for canvas.");
+      }
+    } else {
+      Log::warn("Command 'set_canvas_shader' requires a shader name argument.");
+    }
+  }
+  // Future extensibility example:
+  // else if (command == "set_clear_color") {
+  //   float r, g, b;
+  //   ss >> r >> g >> b;
+  //   glClearColor(r, g, b, 1.0f);
+  //   Log::info("Clear color set.");
+  // }
+  else {
+    Log::warn("SceneRenderer received unknown command: '" + command + "'");
   }
 }

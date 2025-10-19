@@ -3,6 +3,7 @@
 #include "utils/Log.h"
 #include "utils/ResourceManager.h"
 #include <glad/glad.h>
+// #include <sstream>
 
 CanvasRenderer::CanvasRenderer() = default;
 CanvasRenderer::~CanvasRenderer() = default;
@@ -49,4 +50,8 @@ void CanvasRenderer::draw(Scene &scene, unsigned int screen_width,
   m_canvas_quad_mesh->draw(*m_canvas_shader);
 
   glEnable(GL_DEPTH_TEST);
+}
+
+void CanvasRenderer::execute_command(const std::string &command_line) {
+  Log::warn("CanvasRenderer does not support runtime commands.");
 }

@@ -162,22 +162,8 @@ void ScriptingManager::bind_context_types() {
 }
 
 void ScriptingManager::bind_renderer_types() {
-  s_lua_state->new_usertype<IRenderer>(
-      "Renderer", "set_canvas_shader",
-      // This lambda is our new, safe binding.
-      [](IRenderer &renderer, const std::string &shader_name) {
-        // Try to safely downcast the generic renderer to a SceneRenderer.
-        if (SceneRenderer *scene_renderer =
-                dynamic_cast<SceneRenderer *>(&renderer)) {
-          // If the cast is successful, call the method.
-          scene_renderer->set_canvas_shader(shader_name);
-        } else {
-          // Otherwise, the active renderer is a CanvasRenderer (or some
-          // other type) that doesn't support this. Log a warning.
-          Log::warn("The active renderer does not support changing the "
-                    "canvas shader.");
-        }
-      });
+  s_lua_state->new_usertype<IRenderer>("Renderer", "execute_command",
+                                       &IRenderer::execute_command);
 }
 
 void ScriptingManager::bind_utility_types() {

@@ -22,5 +22,5 @@ public:
 
   // A helper for Lua scripting to change shaders, etc.
   // We can provide a default empty implementation.
-  virtual void execute_command(const std::string &command) {}
+  virtual void execute_command(const std::string &command_line) {}
 };

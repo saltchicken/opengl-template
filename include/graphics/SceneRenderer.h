@@ -1,7 +1,6 @@
 #pragma once
 #include "graphics/IRenderer.h"
 #include <memory>
-#include <string>
 
 class Shader;
 class Scene;
@@ -19,12 +18,10 @@ public:
   void draw(Scene &scene, unsigned int screen_width,
             unsigned int screen_height) override;
 
-  void set_canvas_shader(const std::string &name);
+  void execute_command(const std::string &command_line) override;
 
 private:
   std::shared_ptr<Shader> m_shader;
   std::shared_ptr<Shader> m_canvas_shader;
   std::shared_ptr<Mesh> m_canvas_quad_mesh;
-  // TODO: m_transparent_canvas is not necessary. Fix it in implementation
-  bool m_transparent_canvas;
 };

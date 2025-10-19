@@ -15,6 +15,8 @@ public:
   void draw(Scene &scene, unsigned int screen_width,
             unsigned int screen_height) override;
 
+  void execute_command(const std::string &command_line) override;
+
 private:
   std::shared_ptr<Shader> m_canvas_shader;
   std::shared_ptr<Mesh> m_canvas_quad_mesh;
