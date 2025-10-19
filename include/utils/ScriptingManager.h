@@ -4,6 +4,7 @@
 #include <sol/sol.hpp>
 
 class Scene;
+class Settings;
 
 class ScriptingManager {
 public:
@@ -14,11 +15,15 @@ public:
 
   // Loads and executes a Lua script that builds a scene
   static bool load_scene_script(Scene &scene, const std::string &filepath);
+  static bool load_runtime_settings(Settings &settings,
+                                    const std::string &filepath);
   static void execute_string(Scene &scene, const std::string &command);
 
 private:
   // Exposes core types like glm::vec3
   static void bind_core_types();
+  // Exposes Settings
+  static void bind_settings_types();
   // Exposes scene-related classes like Scene, SceneObject, etc.
   static void bind_scene_types();
   // Exposes components like TransformComponent, PropertyAnimatorComponent

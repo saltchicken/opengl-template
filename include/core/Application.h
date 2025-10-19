@@ -1,5 +1,5 @@
 #pragma once
-#include "core/events/EventDispatcher.h" // Include for the handle type
+#include "core/events/EventDispatcher.h"
 #include <memory>
 #include <mutex>
 #include <string>
@@ -23,6 +23,7 @@ public:
   void run();
 
 private:
+  void load_scripts();
   void subscribe_to_events();
   void on_key_pressed(KeyPressedEvent &event);
   void process_script_commands();

@@ -4,13 +4,14 @@
 class Shader;
 class Scene;
 class Mesh;
+struct Config;
 
 class Renderer {
 public:
   Renderer();
   ~Renderer();
 
-  bool init(bool transparent_background);
+  bool init(const Config &config);
   void update(float delta_time);
   void draw(Scene &scene, unsigned int screen_width,
             unsigned int screen_height);

@@ -4,12 +4,17 @@
 
 // A simple struct to hold our application's configuration.
 struct Config {
+  // Initialization settings loaded from settings.toml
   unsigned int window_width = 800;
   unsigned int window_height = 600;
   bool window_resizable = true;
   bool window_transparent = false;
   float fps = 60.0f;
   std::string window_title = "OpenGL Application";
+
+  // Runtime-configurable settings loaded from Lua
+  std::string main_shader_name = "default";
+  std::string background_shader_name = "background";
 };
 
 // Manages loading and parsing the settings.toml file.
@@ -20,6 +25,7 @@ public:
   bool load(const std::string &filepath);
   // Provides access to the loaded configuration.
   const Config &get_config() const;
+  Config &get_mutable_config();
 
 private:
   Config m_config;

@@ -1,4 +1,5 @@
 #include "utils/ScriptingManager.h"
+#include "core/Settings.h"
 #include "scene/CameraComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
@@ -23,11 +24,62 @@ void ScriptingManager::init() {
 
   // Bind all our C++ types and functions
   bind_core_types();
+  bind_settings_types();
   bind_utility_types();
   bind_component_types();
   bind_scene_types();
 
   Log::info("ScriptingManager initialized.");
+}
+
+bool ScriptingManager::load_runtime_settings(Settings &settings,
+                                             const std::string &filepath) {
+  if (!s_lua_state) {
+    Log::error("ScriptingManager not initialized. Cannot load runtime script.");
+    return false;
+  }
+  try {
+    // Load and run the script file
+    s_lua_state->script_file(filepath);
+
+    // Call the 'load_shaders' function from the script, if it exists
+    sol::function load_shaders_func = (*s_lua_state)["load_shaders"];
+    if (load_shaders_func.valid()) {
+      auto result = load_shaders_func();
+      if (!result.valid()) {
+        sol::error err = result;
+        Log::error("Error executing load_shaders function: " +
+                   std::string(err.what()));
+        // Continue anyway, it might not be a fatal error
+      }
+    } else {
+      Log::warn("Script '" + filepath +
+                "' does not contain a 'load_shaders' function.");
+    }
+
+    // Call the 'configure_renderer' function, passing the C++ config object
+    sol::function configure_func = (*s_lua_state)["configure_renderer"];
+    if (configure_func.valid()) {
+      auto result = configure_func(settings.get_mutable_config());
+      if (!result.valid()) {
+        sol::error err = result;
+        Log::error("Error executing configure_renderer function: " +
+                   std::string(err.what()));
+        return false; // This is more critical
+      }
+    } else {
+      Log::error("Script '" + filepath +
+                 "' does not contain a 'configure_renderer' function.");
+      return false;
+    }
+
+  } catch (const sol::error &e) {
+    Log::error("Failed to load or execute runtime settings script '" +
+               filepath + "': " + e.what());
+    return false;
+  }
+  Log::info("Runtime settings loaded from " + filepath);
+  return true;
 }
 
 bool ScriptingManager::load_scene_script(Scene &scene,
@@ -81,12 +133,22 @@ void ScriptingManager::bind_core_types() {
       [](const glm::vec3 &a, const glm::vec3 &b) { return a + b; });
 }
 
+void ScriptingManager::bind_settings_types() {
+  s_lua_state->new_usertype<Config>(
+      "Config", "main_shader_name", &Config::main_shader_name,
+      "background_shader_name", &Config::background_shader_name
+      // Other Config fields can be added here if they need to be scriptable
+  );
+}
+
 void ScriptingManager::bind_utility_types() {
   // ResourceManager
   auto resource_manager_type =
       s_lua_state->new_usertype<ResourceManager>("ResourceManager");
   resource_manager_type["get_primitive"] = &ResourceManager::get_primitive;
   resource_manager_type["load_texture"] = &ResourceManager::load_texture;
+  resource_manager_type["load_shader"] =
+      &ResourceManager::load_shader; // ‼️ Expose load_shader
 }
 
 void ScriptingManager::bind_component_types() {

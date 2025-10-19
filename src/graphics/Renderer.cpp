@@ -1,17 +1,17 @@
 #include "graphics/Renderer.h"
+#include "core/Settings.h"
 #include "scene/CameraComponent.h"
 #include "scene/Scene.h"
 #include "utils/Log.h"
 #include "utils/ResourceManager.h"
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
 
 Renderer::Renderer() = default;
 Renderer::~Renderer() = default;
 
-bool Renderer::init(bool transparent_background) {
-  m_transparent_background = transparent_background;
+bool Renderer::init(const Config &config) {
+  m_transparent_background = config.window_transparent;
   glEnable(GL_DEPTH_TEST);
 
   if (m_transparent_background) {
@@ -19,26 +19,27 @@ bool Renderer::init(bool transparent_background) {
   } else {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
   }
-  // 1. Create the shader program using our Shader class
-  m_shader = ResourceManager::load_shader("default", "shaders/shader.vert",
-                                          "shaders/shader.frag");
+
+  m_shader = ResourceManager::get_shader(config.main_shader_name);
 
   if (!m_shader) {
-    std::cerr << "Failed to load default shader." << std::endl;
+    Log::error("Failed to get shader '" + config.main_shader_name);
     return false;
   }
 
   if (!m_transparent_background) {
-    m_background_shader = ResourceManager::load_shader(
-        "background", "shaders/background.vert", "shaders/background.frag");
+    m_background_shader =
+        ResourceManager::get_shader(config.background_shader_name);
     if (!m_background_shader) {
-      std::cerr << "Failed to load 'background' shader." << std::endl;
+      Log::error("Failed to get shader '" + config.background_shader_name);
       return false;
     }
-    m_background_quad_mesh = ResourceManager::get_primitive("quad");
+    if (m_background_shader) {
+      m_background_quad_mesh = ResourceManager::get_primitive("quad");
+    }
   }
 
-  std::cout << "Renderer initialized successfully." << std::endl;
+  Log::info("Renderer initialized successfully.");
   return true;
 }
 
@@ -50,7 +51,7 @@ void Renderer::draw(Scene &scene, unsigned int screen_width,
                     unsigned int screen_height) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  if (!m_transparent_background) {
+  if (!m_transparent_background && m_background_shader) {
     glDepthMask(GL_FALSE);
     m_background_shader->use();
     m_background_quad_mesh->draw(*m_background_shader);

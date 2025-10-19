@@ -36,3 +36,5 @@ bool Settings::load(const std::string &filepath) {
 }
 
 const Config &Settings::get_config() const { return m_config; }
+
+Config &Settings::get_mutable_config() { return m_config; }

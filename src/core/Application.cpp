@@ -35,6 +35,22 @@ Application::~Application() {
   ResourceManager::clear();
 };
 
+void Application::load_scripts() {
+  Log::info("--- Loading Scripts ---");
+  // Load runtime settings from Lua, which can load resources and set parameters
+  if (!ScriptingManager::load_runtime_settings(
+          *m_settings, "scripts/runtime_settings.lua")) {
+    Log::warn("Could not load runtime settings from script. Using defaults.");
+  }
+
+  // Load the scene from its dedicated script
+  if (!ScriptingManager::load_scene_script(*m_active_scene,
+                                           "scripts/scene.lua")) {
+    Log::error("FATAL: Could not build scene from script.");
+  }
+  Log::info("--- Script Loading Complete ---");
+}
+
 void Application::process_script_commands() {
   // Create a temporary copy of commands to process
   std::vector<std::string> commands_to_run;
@@ -85,24 +101,39 @@ void Application::on_key_pressed(KeyPressedEvent &event) {
 }
 
 void Application::run() {
+  // ‼️ --- NEW INITIALIZATION ORDER ---
+
+  // 1. Load critical settings from TOML first. We need these for the window.
   m_settings->load("settings.toml");
   const auto &config = m_settings->get_config();
 
-  Time::init(config.fps);
-  // 1. Initialize window and renderer
+  // 2. Initialize the window. This is CRITICAL because it creates the OpenGL
+  // context.
   if (!m_window->init(config.window_width, config.window_height,
                       config.window_title.c_str(), config.window_resizable,
                       config.window_transparent)) {
     Log::error("Failed to initialize window!");
     return;
   }
-  if (!m_renderer->init(config.window_transparent)) {
+
+  // 3. Now that we have a context, we can initialize scripting and load assets.
+  ScriptingManager::init();
+  load_scripts();
+
+  // 4. Check if loading the scene was successful.
+  if (m_active_scene->get_scene_objects().empty()) {
+    Log::error("Scene is empty after loading, aborting run().");
+    return;
+  }
+
+  // 5. Initialize the renderer, which depends on loaded shaders.
+  if (!m_renderer->init(config)) {
     Log::error("Failed to initialize renderer!");
     return;
   }
 
-  ScriptingManager::init();
-
+  // 6. Initialize time and start the console thread.
+  Time::init(config.fps);
   m_console_thread = std::thread([this]() {
     Log::info(
         "Interactive Lua console started. Type commands and press Enter.");
@@ -116,18 +147,9 @@ void Application::run() {
     }
   });
 
-  //
-  // SCENE SETUP
-  //
-  if (!ScriptingManager::load_scene_script(*m_active_scene,
-                                           "scripts/scene.lua")) {
-    Log::error("Could not build scene from script. Aborting.");
-    return;
-  }
-  //
-  // End SCENE SETUP
-  //
+  // ‼️ Redundant scene setup block has been REMOVED from here.
 
+  // --- MAIN LOOP ---
   Input *input = m_window->get_input();
   Log::debug("Starting main loop");
   while (!m_window->should_close()) {
