@@ -16,5 +16,5 @@ function configure_renderer(config)
 	config.renderer_type = "scene"
 
 	config.main_shader_name = "default"
-	config.canvas_shader_name = "canvas"
+	config.canvas_shader_name = "box_test"
 end

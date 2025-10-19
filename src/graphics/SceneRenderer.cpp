@@ -23,19 +23,16 @@ bool SceneRenderer::init(const Config &config) {
   m_shader = ResourceManager::get_shader(config.main_shader_name);
 
   if (!m_shader) {
-    Log::error("Failed to get shader '" + config.main_shader_name);
+    Log::error("Failed to get main shader '" + config.main_shader_name);
     return false;
   }
 
-  if (!m_transparent_canvas) {
-    m_canvas_shader = ResourceManager::get_shader(config.canvas_shader_name);
-    if (!m_canvas_shader) {
-      Log::error("Failed to get shader '" + config.canvas_shader_name);
-      return false;
-    }
-    if (m_canvas_shader) {
-      m_canvas_quad_mesh = ResourceManager::get_primitive("quad");
-    }
+  m_canvas_shader = ResourceManager::get_shader(config.canvas_shader_name);
+  m_canvas_quad_mesh = ResourceManager::get_primitive("quad");
+
+  if (!m_canvas_shader || !m_canvas_quad_mesh) {
+    Log::error("Failed to get canvas shader '" + config.canvas_shader_name);
+    return false;
   }
 
   Log::info("Renderer initialized successfully.");
@@ -50,15 +47,11 @@ void SceneRenderer::draw(Scene &scene, unsigned int screen_width,
                          unsigned int screen_height) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // TODO: Remove check on m_transparent_canvas. The shader should determine
-  // what is transparent and what is not.
-  if (!m_transparent_canvas && m_canvas_shader) {
-    glDepthMask(GL_FALSE);
-    m_canvas_shader->use();
-    m_canvas_quad_mesh->draw(*m_canvas_shader);
-    // Re-enable depth writing for the main scene.
-    glDepthMask(GL_TRUE);
-  }
+  glDepthMask(GL_FALSE);
+  m_canvas_shader->use();
+  m_canvas_quad_mesh->draw(*m_canvas_shader);
+  // Re-enable depth writing for the main scene.
+  glDepthMask(GL_TRUE);
 
   auto camera_object = scene.get_active_camera();
   // TODO: Is there a way to skip having to check if camera_object exists? Does

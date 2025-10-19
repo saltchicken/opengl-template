@@ -41,7 +41,7 @@ void Application::load_scripts() {
 
   // Load the scene from its dedicated script
   if (!ScriptingManager::load_scene_script(*m_active_scene,
-                                           "scripts/empty.lua")) {
+                                           "scripts/scene.lua")) {
     Log::error("FATAL: Could not build scene from script.");
   }
   Log::info("--- Script Loading Complete ---");
