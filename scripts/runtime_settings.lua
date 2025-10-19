@@ -13,6 +13,8 @@ end
 function configure_renderer(config)
 	print("[Lua] Configuring renderer settings...")
 	-- Tell the application which shaders to use by name
+	config.renderer_type = "scene"
+
 	config.main_shader_name = "default"
 	config.canvas_shader_name = "canvas"
 end

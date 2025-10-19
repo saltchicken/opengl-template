@@ -13,6 +13,7 @@ struct Config {
   std::string window_title = "OpenGL Application";
 
   // Runtime-configurable settings loaded from Lua
+  std::string renderer_type = "canvas";
   std::string main_shader_name = "default";
   std::string canvas_shader_name = "canvas";
 };

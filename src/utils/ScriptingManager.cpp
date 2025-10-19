@@ -149,7 +149,8 @@ void ScriptingManager::bind_core_types() {
 void ScriptingManager::bind_settings_types() {
   s_lua_state->new_usertype<Config>(
       "Config", "main_shader_name", &Config::main_shader_name,
-      "canvas_shader_name", &Config::canvas_shader_name
+      "canvas_shader_name", &Config::canvas_shader_name, "renderer_type",
+      &Config::renderer_type
       // Other Config fields can be added here if they need to be scriptable
   );
 }

@@ -41,7 +41,7 @@ void Application::load_scripts() {
 
   // Load the scene from its dedicated script
   if (!ScriptingManager::load_scene_script(*m_active_scene,
-                                           "scripts/scene.lua")) {
+                                           "scripts/empty.lua")) {
     Log::error("FATAL: Could not build scene from script.");
   }
   Log::info("--- Script Loading Complete ---");
@@ -125,11 +125,15 @@ void Application::run() {
   load_scripts();
 
   // 5. Initialize the renderer, which depends on loaded shaders.
-  if (m_active_scene->get_scene_objects().empty()) {
-    Log::info("Scene is empty. Creating CanvasRenderer.");
+  if (config.renderer_type == "canvas") {
+    Log::info("Creating CanvasRenderer based on settings.");
     m_renderer = std::make_unique<CanvasRenderer>();
+  } else if (config.renderer_type == "scene") {
+    Log::info("Creating SceneRenderer based on settings.");
+    m_renderer = std::make_unique<SceneRenderer>();
   } else {
-    Log::info("Scene has objects. Creating SceneRenderer.");
+    Log::warn("Unknown renderer type '" + config.renderer_type +
+              "'. Defaulting to SceneRenderer.");
     m_renderer = std::make_unique<SceneRenderer>();
   }
 
