@@ -31,22 +31,6 @@ Application::Application() {
 
 Application::~Application() { ResourceManager::clear(); };
 
-void Application::load_scripts() {
-  Log::info("--- Loading Scripts ---");
-  // Load runtime settings from Lua, which can load resources and set parameters
-  if (!ScriptingManager::load_runtime_settings(
-          *m_settings, "scripts/runtime_settings.lua")) {
-    Log::warn("Could not load runtime settings from script. Using defaults.");
-  }
-
-  // Load the scene from its dedicated script
-  if (!ScriptingManager::load_scene_script(*m_active_scene,
-                                           "scripts/scene.lua")) {
-    Log::error("FATAL: Could not build scene from script.");
-  }
-  Log::info("--- Script Loading Complete ---");
-}
-
 void Application::process_script_commands() {
   // Create a temporary copy of commands to process
   std::vector<std::string> commands_to_run;
@@ -99,32 +83,39 @@ void Application::on_key_pressed(KeyPressedEvent &event) {
 }
 
 void Application::run() {
-  // 1. Load critical settings TOML first.
+  // 1. Load critical settings TOML.
   m_settings->load("settings.toml");
-  const auto &config = m_settings->get_config();
 
   // 2. Initialize the window and OpenGL context
+  // ‼️ We need a mutable reference to config now.
+  // TODO: Do not use a mutable reference to config. Implement functions to make
+  // this safer.
+  auto &config = m_settings->get_mutable_config();
   if (!m_window->init(config.window_width, config.window_height,
                       config.window_title.c_str(), config.window_resizable,
                       config.window_transparent)) {
     Log::error("Failed to initialize window!");
     return;
   }
-  m_console->init(
-      m_window->get_glfw_window()); // You'll need to add this getter
+
+  m_console->init(m_window->get_glfw_window());
   m_console->set_command_callback([this](const std::string &command) {
     std::lock_guard<std::mutex> lock(m_command_mutex);
     m_command_queue.push_back(command);
   });
 
-  // 3. Initialize scripting and load assets.
+  // 3. Initialize scripting.
   ScriptingManager::init();
   m_scripting_context->scene = m_active_scene.get();
 
-  ScriptingManager::set_context(*m_scripting_context);
-  load_scripts();
+  // Load runtime settings to finalize the config.
+  Log::info("--- Loading Runtime Scripts ---");
+  if (!ScriptingManager::load_runtime_settings(
+          *m_settings, "scripts/runtime_settings.lua")) {
+    Log::warn("Could not load runtime settings from script. Using defaults.");
+  }
 
-  // 5. Initialize the renderer, which depends on loaded shaders.
+  // Create the renderer based on the MODIFIED config.
   if (config.renderer_type == "canvas") {
     Log::info("Creating CanvasRenderer based on settings.");
     m_renderer = std::make_unique<CanvasRenderer>();
@@ -137,12 +128,23 @@ void Application::run() {
     m_renderer = std::make_unique<SceneRenderer>();
   }
 
+  // Now that the renderer exists, set it in the context.
   m_scripting_context->renderer = m_renderer.get();
-  // 5. Initialize the chosen renderer.
+  ScriptingManager::set_context(*m_scripting_context);
+
+  // 4. Initialize the chosen renderer.
   if (!m_renderer->init(config)) {
     Log::error("Failed to initialize renderer!");
     return;
   }
+
+  // 5. Load the scene using its dedicated script.
+  Log::info("--- Loading Scene Script ---");
+  if (!ScriptingManager::load_scene_script(*m_active_scene,
+                                           "scripts/scene.lua")) {
+    Log::error("FATAL: Could not build scene from script.");
+  }
+  Log::info("--- Script Loading Complete ---");
 
   // 6. Initialize time.
   Time::init(config.fps);
