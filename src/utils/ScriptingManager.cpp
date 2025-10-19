@@ -149,7 +149,7 @@ void ScriptingManager::bind_core_types() {
 void ScriptingManager::bind_settings_types() {
   s_lua_state->new_usertype<Config>(
       "Config", "main_shader_name", &Config::main_shader_name,
-      "background_shader_name", &Config::background_shader_name
+      "canvas_shader_name", &Config::canvas_shader_name
       // Other Config fields can be added here if they need to be scriptable
   );
 }
@@ -162,19 +162,19 @@ void ScriptingManager::bind_context_types() {
 
 void ScriptingManager::bind_renderer_types() {
   s_lua_state->new_usertype<IRenderer>(
-      "Renderer", "set_background_shader",
+      "Renderer", "set_canvas_shader",
       // This lambda is our new, safe binding.
       [](IRenderer &renderer, const std::string &shader_name) {
         // Try to safely downcast the generic renderer to a SceneRenderer.
         if (SceneRenderer *scene_renderer =
                 dynamic_cast<SceneRenderer *>(&renderer)) {
           // If the cast is successful, call the method.
-          scene_renderer->set_background_shader(shader_name);
+          scene_renderer->set_canvas_shader(shader_name);
         } else {
-          // Otherwise, the active renderer is a BackgroundRenderer (or some
+          // Otherwise, the active renderer is a CanvasRenderer (or some
           // other type) that doesn't support this. Log a warning.
           Log::warn("The active renderer does not support changing the "
-                    "background shader.");
+                    "canvas shader.");
         }
       });
 }

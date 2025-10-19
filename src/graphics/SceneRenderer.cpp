@@ -11,10 +11,10 @@ SceneRenderer::SceneRenderer() = default;
 SceneRenderer::~SceneRenderer() = default;
 
 bool SceneRenderer::init(const Config &config) {
-  m_transparent_background = config.window_transparent;
+  m_transparent_canvas = config.window_transparent;
   glEnable(GL_DEPTH_TEST);
 
-  if (m_transparent_background) {
+  if (m_transparent_canvas) {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Transparent black
   } else {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
@@ -27,15 +27,14 @@ bool SceneRenderer::init(const Config &config) {
     return false;
   }
 
-  if (!m_transparent_background) {
-    m_background_shader =
-        ResourceManager::get_shader(config.background_shader_name);
-    if (!m_background_shader) {
-      Log::error("Failed to get shader '" + config.background_shader_name);
+  if (!m_transparent_canvas) {
+    m_canvas_shader = ResourceManager::get_shader(config.canvas_shader_name);
+    if (!m_canvas_shader) {
+      Log::error("Failed to get shader '" + config.canvas_shader_name);
       return false;
     }
-    if (m_background_shader) {
-      m_background_quad_mesh = ResourceManager::get_primitive("quad");
+    if (m_canvas_shader) {
+      m_canvas_quad_mesh = ResourceManager::get_primitive("quad");
     }
   }
 
@@ -51,10 +50,12 @@ void SceneRenderer::draw(Scene &scene, unsigned int screen_width,
                          unsigned int screen_height) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  if (!m_transparent_background && m_background_shader) {
+  // TODO: Remove check on m_transparent_canvas. The shader should determine
+  // what is transparent and what is not.
+  if (!m_transparent_canvas && m_canvas_shader) {
     glDepthMask(GL_FALSE);
-    m_background_shader->use();
-    m_background_quad_mesh->draw(*m_background_shader);
+    m_canvas_shader->use();
+    m_canvas_quad_mesh->draw(*m_canvas_shader);
     // Re-enable depth writing for the main scene.
     glDepthMask(GL_TRUE);
   }
@@ -94,12 +95,12 @@ void SceneRenderer::draw(Scene &scene, unsigned int screen_width,
   }
 }
 
-void SceneRenderer::set_background_shader(const std::string &name) {
+void SceneRenderer::set_canvas_shader(const std::string &name) {
   auto new_shader = ResourceManager::get_shader(name);
   if (new_shader) {
-    m_background_shader = new_shader;
-    Log::info("Background shader switched to '" + name + "'");
+    m_canvas_shader = new_shader;
+    Log::info("Canvas shader switched to '" + name + "'");
   } else {
-    Log::warn("Failed to find shader '" + name + "' for background.");
+    Log::warn("Failed to find shader '" + name + "' for canvas.");
   }
 }

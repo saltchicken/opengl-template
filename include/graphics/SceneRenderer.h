@@ -19,11 +19,11 @@ public:
   void draw(Scene &scene, unsigned int screen_width,
             unsigned int screen_height) override;
 
-  void set_background_shader(const std::string &name);
+  void set_canvas_shader(const std::string &name);
 
 private:
   std::shared_ptr<Shader> m_shader;
-  std::shared_ptr<Shader> m_background_shader;
-  std::shared_ptr<Mesh> m_background_quad_mesh;
-  bool m_transparent_background;
+  std::shared_ptr<Shader> m_canvas_shader;
+  std::shared_ptr<Mesh> m_canvas_quad_mesh;
+  bool m_transparent_canvas;
 };

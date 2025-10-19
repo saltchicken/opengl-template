@@ -14,7 +14,7 @@ struct Config {
 
   // Runtime-configurable settings loaded from Lua
   std::string main_shader_name = "default";
-  std::string background_shader_name = "background";
+  std::string canvas_shader_name = "canvas";
 };
 
 // Manages loading and parsing the settings.toml file.

@@ -5,10 +5,10 @@
 class Shader;
 class Mesh;
 
-class BackgroundRenderer : public IRenderer {
+class CanvasRenderer : public IRenderer {
 public:
-  BackgroundRenderer();
-  ~BackgroundRenderer();
+  CanvasRenderer();
+  ~CanvasRenderer();
 
   bool init(const Config &config) override;
   void update(float delta_time) override;
@@ -16,6 +16,6 @@ public:
             unsigned int screen_height) override;
 
 private:
-  std::shared_ptr<Shader> m_background_shader;
-  std::shared_ptr<Mesh> m_background_quad_mesh;
+  std::shared_ptr<Shader> m_canvas_shader;
+  std::shared_ptr<Mesh> m_canvas_quad_mesh;
 };

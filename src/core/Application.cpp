@@ -8,7 +8,7 @@
 #include "core/events/EventDispatcher.h"
 #include "core/events/KeyEvent.h"
 #include "core/events/MouseEvent.h"
-#include "graphics/BackgroundRenderer.h"
+#include "graphics/CanvasRenderer.h"
 #include "graphics/IRenderer.h"
 #include "graphics/SceneRenderer.h"
 #include "scene/Scene.h"
@@ -41,7 +41,7 @@ void Application::load_scripts() {
 
   // Load the scene from its dedicated script
   if (!ScriptingManager::load_scene_script(*m_active_scene,
-                                           "scripts/empty.lua")) {
+                                           "scripts/scene.lua")) {
     Log::error("FATAL: Could not build scene from script.");
   }
   Log::info("--- Script Loading Complete ---");
@@ -126,8 +126,8 @@ void Application::run() {
 
   // 5. Initialize the renderer, which depends on loaded shaders.
   if (m_active_scene->get_scene_objects().empty()) {
-    Log::info("Scene is empty. Creating BackgroundRenderer.");
-    m_renderer = std::make_unique<BackgroundRenderer>();
+    Log::info("Scene is empty. Creating CanvasRenderer.");
+    m_renderer = std::make_unique<CanvasRenderer>();
   } else {
     Log::info("Scene has objects. Creating SceneRenderer.");
     m_renderer = std::make_unique<SceneRenderer>();
