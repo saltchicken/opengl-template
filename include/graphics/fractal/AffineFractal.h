@@ -4,8 +4,12 @@
 
 class AffineFractal {
 public:
+  // ‼️ Add an enum to specify which fractal to generate
+  enum class FractalType { SierpinskiTetrahedron, TwistedCube };
+
   AffineFractal();
-  std::vector<Point> generate(int num_points);
+  // ‼️ Update the generate function signature
+  std::vector<Point> generate(FractalType type, int num_points);
 
 private:
   struct AffineTransform {
@@ -15,5 +19,8 @@ private:
   };
 
   std::vector<AffineTransform> m_transforms;
+
+  // ‼️ Add setup functions for each fractal type
   void setup_sierpinski_tetrahedron();
+  void setup_twisted_cube();
 };

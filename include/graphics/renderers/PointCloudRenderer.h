@@ -3,7 +3,7 @@
 #include <memory>
 
 // Forward declarations
-class PointCloud;
+// ‼️ PointCloud is no longer used here
 class Shader;
 class SceneObject;
 
@@ -18,10 +18,17 @@ public:
             unsigned int screen_height) override;
 
 private:
-  std::unique_ptr<PointCloud> m_point_cloud;
+  // ‼️ Replace PointCloud with raw OpenGL handles
+  unsigned int m_vao = 0;
+  unsigned int m_vbo_start = 0;
+  unsigned int m_vbo_end = 0;
+  int m_point_count = 0;
+
   std::shared_ptr<Shader> m_shader;
 
-  // We will manage our own simple scene internally
   std::shared_ptr<SceneObject> m_fractal_object;
   std::shared_ptr<SceneObject> m_camera_object;
+
+  // ‼️ Add a member for the interpolation factor
+  float m_interpolation_factor = 0.0f;
 };
