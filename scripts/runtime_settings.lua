@@ -14,11 +14,11 @@ function configure_renderer(config)
 	print("[Lua] Configuring renderer settings...")
 
 	-- Set the active renderer
-	config.renderer_type = "canvas"
+	config.renderer_type = "compute"
 
-	-- SceneRenderer settings
-	config.scene_main_shader_name = "default"
-	config.scene_canvas_shader_name = "box_test"
+	-- GraphicsRenderer settings
+	config.graphics_main_shader_name = "default"
+	config.graphics_canvas_shader_name = "canvas_alt"
 
 	-- CanvasRenderer settings
 	config.canvas_shader_name = "canvas"

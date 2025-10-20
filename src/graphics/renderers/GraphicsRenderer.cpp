@@ -1,4 +1,4 @@
-#include "graphics/renderers/SceneRenderer.h"
+#include "graphics/renderers/GraphicsRenderer.h"
 #include "core/Settings.h"
 #include "scene/CameraComponent.h"
 #include "scene/Scene.h"
@@ -8,10 +8,10 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <sstream>
 
-SceneRenderer::SceneRenderer() = default;
-SceneRenderer::~SceneRenderer() = default;
+GraphicsRenderer::GraphicsRenderer() = default;
+GraphicsRenderer::~GraphicsRenderer() = default;
 
-bool SceneRenderer::init(const Config &config) {
+bool GraphicsRenderer::init(const Config &config) {
   glEnable(GL_DEPTH_TEST);
 
   if (config.window_transparent) {
@@ -20,18 +20,21 @@ bool SceneRenderer::init(const Config &config) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
   }
 
-  m_shader = ResourceManager::get_shader(config.scene_main_shader_name);
+  m_shader = ResourceManager::get_shader(config.graphics_main_shader_name);
 
   if (!m_shader) {
-    Log::error("Failed to get main shader '" + config.scene_main_shader_name);
+    Log::error("Failed to get main shader '" +
+               config.graphics_main_shader_name);
     return false;
   }
 
-  m_canvas_shader = ResourceManager::get_shader(config.canvas_shader_name);
+  m_canvas_shader =
+      ResourceManager::get_shader(config.graphics_canvas_shader_name);
   m_canvas_quad_mesh = ResourceManager::get_primitive("quad");
 
   if (!m_canvas_shader || !m_canvas_quad_mesh) {
-    Log::error("Failed to get canvas shader '" + config.canvas_shader_name);
+    Log::error("Failed to get canvas shader '" +
+               config.graphics_canvas_shader_name);
     return false;
   }
 
@@ -39,12 +42,12 @@ bool SceneRenderer::init(const Config &config) {
   return true;
 }
 
-void SceneRenderer::update(float delta_time) {
+void GraphicsRenderer::update(float delta_time) {
   // std::cout << delta_time << std::endl;
 }
 
-void SceneRenderer::draw(Scene &scene, unsigned int screen_width,
-                         unsigned int screen_height) {
+void GraphicsRenderer::draw(Scene &scene, unsigned int screen_width,
+                            unsigned int screen_height) {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glDepthMask(GL_FALSE);
@@ -88,7 +91,7 @@ void SceneRenderer::draw(Scene &scene, unsigned int screen_width,
   }
 }
 
-void SceneRenderer::execute_command(const std::string &command_line) {
+void GraphicsRenderer::execute_command(const std::string &command_line) {
   std::stringstream ss(command_line);
   std::string command;
   ss >> command; // Read the first word as the command
@@ -116,6 +119,6 @@ void SceneRenderer::execute_command(const std::string &command_line) {
   //   Log::info("Clear color set.");
   // }
   else {
-    Log::warn("SceneRenderer received unknown command: '" + command + "'");
+    Log::warn("GraphicsRenderer received unknown command: '" + command + "'");
   }
 }

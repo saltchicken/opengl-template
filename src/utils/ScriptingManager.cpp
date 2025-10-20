@@ -2,8 +2,8 @@
 #include "core/ScriptingContext.h"
 #include "core/Settings.h"
 #include "graphics/Shader.h"
+#include "graphics/renderers/GraphicsRenderer.h"
 #include "graphics/renderers/IRenderer.h"
-#include "graphics/renderers/SceneRenderer.h"
 #include "scene/CameraComponent.h"
 #include "scene/PropertyAnimatorComponent.h"
 #include "scene/Scene.h"
@@ -153,9 +153,9 @@ void ScriptingManager::bind_settings_types() {
       // General
       "renderer_type", &Config::renderer_type,
 
-      // SceneRenderer settings
-      "scene_main_shader_name", &Config::scene_main_shader_name,
-      "scene_canvas_shader_name", &Config::scene_canvas_shader_name,
+      // GraphicsRenderer settings
+      "graphics_main_shader_name", &Config::graphics_main_shader_name,
+      "graphics_canvas_shader_name", &Config::graphics_canvas_shader_name,
 
       // CanvasRenderer settings
       "canvas_shader_name", &Config::canvas_shader_name,

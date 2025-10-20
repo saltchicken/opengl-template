@@ -7,10 +7,10 @@ class Scene;
 class Mesh;
 struct Config;
 
-class SceneRenderer : public IRenderer {
+class GraphicsRenderer : public IRenderer {
 public:
-  SceneRenderer();
-  ~SceneRenderer();
+  GraphicsRenderer();
+  ~GraphicsRenderer();
 
   // Use the override keyword for clarity and safety
   bool init(const Config &config) override;
