@@ -16,9 +16,8 @@ bool ComputeRenderer::init(const Config &config) {
   glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
   // 1. Load shaders and mesh
-  m_compute_shader = ResourceManager::get_shader("compute_test");
-  m_draw_shader =
-      ResourceManager::get_shader("draw_texture"); // Reuse canvas shader
+  m_compute_shader = ResourceManager::get_shader(config.compute_shader_name);
+  m_draw_shader = ResourceManager::get_shader(config.compute_draw_shader_name);
   m_quad_mesh = ResourceManager::get_primitive("quad");
 
   if (!m_compute_shader || !m_draw_shader || !m_quad_mesh) {

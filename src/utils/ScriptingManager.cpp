@@ -149,11 +149,20 @@ void ScriptingManager::bind_core_types() {
 
 void ScriptingManager::bind_settings_types() {
   s_lua_state->new_usertype<Config>(
-      "Config", "main_shader_name", &Config::main_shader_name,
-      "canvas_shader_name", &Config::canvas_shader_name, "renderer_type",
-      &Config::renderer_type
-      // Other Config fields can be added here if they need to be scriptable
-  );
+      "Config",
+      // General
+      "renderer_type", &Config::renderer_type,
+
+      // SceneRenderer settings
+      "scene_main_shader_name", &Config::scene_main_shader_name,
+      "scene_canvas_shader_name", &Config::scene_canvas_shader_name,
+
+      // CanvasRenderer settings
+      "canvas_shader_name", &Config::canvas_shader_name,
+
+      // ComputeRenderer settings
+      "compute_shader_name", &Config::compute_shader_name,
+      "compute_draw_shader_name", &Config::compute_draw_shader_name);
 }
 
 void ScriptingManager::bind_context_types() {

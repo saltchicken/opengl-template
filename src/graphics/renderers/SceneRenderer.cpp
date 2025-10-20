@@ -20,10 +20,10 @@ bool SceneRenderer::init(const Config &config) {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Opaque dark grey
   }
 
-  m_shader = ResourceManager::get_shader(config.main_shader_name);
+  m_shader = ResourceManager::get_shader(config.scene_main_shader_name);
 
   if (!m_shader) {
-    Log::error("Failed to get main shader '" + config.main_shader_name);
+    Log::error("Failed to get main shader '" + config.scene_main_shader_name);
     return false;
   }
 

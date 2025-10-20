@@ -12,9 +12,18 @@ end
 -- This function takes the C++ Config object and sets values on it.
 function configure_renderer(config)
 	print("[Lua] Configuring renderer settings...")
-	-- Tell the application which shaders to use by name
-	config.renderer_type = "compute"
 
-	config.main_shader_name = "compute_test"
-	config.canvas_shader_name = "box_test"
+	-- Set the active renderer
+	config.renderer_type = "canvas"
+
+	-- SceneRenderer settings
+	config.scene_main_shader_name = "default"
+	config.scene_canvas_shader_name = "box_test"
+
+	-- CanvasRenderer settings
+	config.canvas_shader_name = "canvas"
+
+	-- ComputeRenderer settings
+	config.compute_shader_name = "compute_test"
+	config.compute_draw_shader_name = "draw_texture"
 end
