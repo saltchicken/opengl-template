@@ -44,12 +44,15 @@ void CanvasRenderer::draw(Scene &scene, unsigned int screen_width,
   // Always clear the color buffer.
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glDisable(GL_DEPTH_TEST);
+  // TODO: Is this depth stuff necessary?
+  // glDisable(GL_DEPTH_TEST);
+  glDepthMask(GL_FALSE);
 
   m_canvas_shader->use();
   m_canvas_quad_mesh->draw(*m_canvas_shader);
 
-  glEnable(GL_DEPTH_TEST);
+  // glEnable(GL_DEPTH_TEST);
+  glDepthMask(GL_TRUE);
 }
 
 void CanvasRenderer::execute_command(const std::string &command_line) {
