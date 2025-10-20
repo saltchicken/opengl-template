@@ -162,7 +162,10 @@ void ScriptingManager::bind_settings_types() {
 
       // ComputeRenderer settings
       "compute_shader_name", &Config::compute_shader_name,
-      "compute_draw_shader_name", &Config::compute_draw_shader_name);
+      "compute_draw_shader_name", &Config::compute_draw_shader_name,
+
+      // For PointCloudRenderer
+      "point_cloud_shader_name", &Config::point_cloud_shader_name);
 }
 
 void ScriptingManager::bind_context_types() {

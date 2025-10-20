@@ -12,6 +12,7 @@
 #include "graphics/renderers/ComputeRenderer.h"
 #include "graphics/renderers/GraphicsRenderer.h"
 #include "graphics/renderers/IRenderer.h"
+#include "graphics/renderers/PointCloudRenderer.h"
 #include "scene/Scene.h"
 #include "utils/DebugConsole.h"
 #include "utils/Log.h"
@@ -126,6 +127,9 @@ void Application::run() {
   } else if (config.renderer_type == "compute") {
     Log::info("Creating ComputeRenderer based on settings.");
     m_renderer = std::make_unique<ComputeRenderer>();
+  } else if (config.renderer_type == "point_cloud") {
+    Log::info("Creating PointCloudRenderer based on settings.");
+    m_renderer = std::make_unique<PointCloudRenderer>();
   } else {
     Log::warn("Unknown renderer type '" + config.renderer_type +
               "'. Defaulting to GraphicsRenderer.");

@@ -7,6 +7,11 @@ function load_shaders()
 	ResourceManager.load_shader("box_test", ShaderType.Graphics, { "shaders/canvas.vert", "shaders/box_test.frag" })
 	ResourceManager.load_shader("compute_test", ShaderType.Compute, { "shaders/texture_compute.comp" })
 	ResourceManager.load_shader("draw_texture", ShaderType.Graphics, { "shaders/canvas.vert", "shaders/shader.frag" })
+	ResourceManager.load_shader(
+		"point_cloud",
+		ShaderType.Graphics,
+		{ "shaders/point_cloud.vert", "shaders/point_cloud.frag" }
+	)
 end
 
 -- This function takes the C++ Config object and sets values on it.
@@ -14,7 +19,7 @@ function configure_renderer(config)
 	print("[Lua] Configuring renderer settings...")
 
 	-- Set the active renderer
-	config.renderer_type = "compute"
+	config.renderer_type = "point_cloud"
 
 	-- GraphicsRenderer settings
 	config.graphics_main_shader_name = "default"
@@ -26,4 +31,7 @@ function configure_renderer(config)
 	-- ComputeRenderer settings
 	config.compute_shader_name = "compute_test"
 	config.compute_draw_shader_name = "draw_texture"
+
+	-- PointCloudRenderer settings
+	config.point_cloud_shader_name = "point_cloud"
 end

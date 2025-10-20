@@ -25,6 +25,9 @@ struct Config {
   // For ComputeRenderer
   std::string compute_shader_name = "compute_test";
   std::string compute_draw_shader_name = "draw_texture";
+
+  // For PointCloudRenderer
+  std::string point_cloud_shader_name = "point_cloud";
 };
 
 // Manages loading and parsing the settings.toml file.
