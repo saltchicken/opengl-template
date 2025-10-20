@@ -165,7 +165,7 @@ void Application::run() {
 
     EventDispatcher::dispatch_events();
     if (m_window->should_close()) {
-      continue;
+      break;
     }
     // Update all object and their components in the scene
     m_active_scene->update(delta_time);
