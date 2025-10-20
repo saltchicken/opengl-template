@@ -1,15 +1,20 @@
 #pragma once
 #include <string>
 #include <unordered_map> // For the cache
+#include <vector>
 
 // Include GLM headers for vector and matrix types
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+enum class ShaderType {
+  Graphics, // For a standard vertex + fragment pair
+  Compute   // For a compute shader
+};
+
 class Shader {
 public:
-  Shader(const std::string &vertex_path, const std::string &fragment_path);
-  Shader(const std::string &compute_path);
+  Shader(ShaderType type, const std::vector<std::string> &paths);
   ~Shader();
 
   // Disable copying

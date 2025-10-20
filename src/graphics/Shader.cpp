@@ -23,56 +23,55 @@ std::string load_shader_source(const std::string &filepath) {
 }
 } // namespace
 
-Shader::Shader(const std::string &vertex_path,
-               const std::string &fragment_path) {
-  std::string vertex_code = load_shader_source(vertex_path);
-  std::string fragment_code = load_shader_source(fragment_path);
-  const char *v_shader_code = vertex_code.c_str();
-  const char *f_shader_code = fragment_code.c_str();
+Shader::Shader(ShaderType type, const std::vector<std::string> &paths) {
+  if (type == ShaderType::Graphics) {
+    if (paths.size() < 2) {
+      throw std::runtime_error(
+          "Graphics shader requires 2 paths (vertex and fragment).");
+    }
+    std::string vertex_code = load_shader_source(paths[0]);
+    std::string fragment_code = load_shader_source(paths[1]);
+    const char *v_shader_code = vertex_code.c_str();
+    const char *f_shader_code = fragment_code.c_str();
 
-  // 2. compile shaders
-  unsigned int vertex, fragment;
+    unsigned int vertex = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertex, 1, &v_shader_code, NULL);
+    glCompileShader(vertex);
+    check_compile_errors(vertex, "VERTEX");
 
-  // vertex shader
-  vertex = glCreateShader(GL_VERTEX_SHADER);
-  glShaderSource(vertex, 1, &v_shader_code, NULL);
-  glCompileShader(vertex);
-  check_compile_errors(vertex, "VERTEX");
+    unsigned int fragment = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragment, 1, &f_shader_code, NULL);
+    glCompileShader(fragment);
+    check_compile_errors(fragment, "FRAGMENT");
 
-  // fragment Shader
-  fragment = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(fragment, 1, &f_shader_code, NULL);
-  glCompileShader(fragment);
-  check_compile_errors(fragment, "FRAGMENT");
+    m_id = glCreateProgram();
+    glAttachShader(m_id, vertex);
+    glAttachShader(m_id, fragment);
+    glLinkProgram(m_id);
+    check_compile_errors(m_id, "PROGRAM");
 
-  // shader Program
-  m_id = glCreateProgram();
-  glAttachShader(m_id, vertex);
-  glAttachShader(m_id, fragment);
-  glLinkProgram(m_id);
-  check_compile_errors(m_id, "PROGRAM");
+    glDeleteShader(vertex);
+    glDeleteShader(fragment);
 
-  // delete the shaders as they're linked into our program now and no longer
-  // necessary
-  glDeleteShader(vertex);
-  glDeleteShader(fragment);
-}
+  } else if (type == ShaderType::Compute) {
+    if (paths.empty()) {
+      throw std::runtime_error("Compute shader requires 1 path.");
+    }
+    std::string compute_code = load_shader_source(paths[0]);
+    const char *c_shader_code = compute_code.c_str();
 
-Shader::Shader(const std::string &compute_path) {
-  std::string compute_code = load_shader_source(compute_path);
-  const char *c_shader_code = compute_code.c_str();
+    unsigned int compute = glCreateShader(GL_COMPUTE_SHADER);
+    glShaderSource(compute, 1, &c_shader_code, NULL);
+    glCompileShader(compute);
+    check_compile_errors(compute, "COMPUTE");
 
-  unsigned int compute = glCreateShader(GL_COMPUTE_SHADER);
-  glShaderSource(compute, 1, &c_shader_code, NULL);
-  glCompileShader(compute);
-  check_compile_errors(compute, "COMPUTE");
+    m_id = glCreateProgram();
+    glAttachShader(m_id, compute);
+    glLinkProgram(m_id);
+    check_compile_errors(m_id, "PROGRAM");
 
-  m_id = glCreateProgram();
-  glAttachShader(m_id, compute);
-  glLinkProgram(m_id);
-  check_compile_errors(m_id, "PROGRAM");
-
-  glDeleteShader(compute);
+    glDeleteShader(compute);
+  }
 }
 
 Shader::~Shader() {

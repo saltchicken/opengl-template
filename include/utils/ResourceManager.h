@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 class ResourceManager {
 public:
@@ -13,11 +14,9 @@ public:
   ResourceManager() = delete;
 
   // Shaders
-  static std::shared_ptr<Shader> load_shader(const std::string &name,
-                                             const std::string &v_shader_file,
-                                             const std::string &f_shader_file);
-  static std::shared_ptr<Shader> load_shader(const std::string &name,
-                                             const std::string &c_shader_file);
+  static std::shared_ptr<Shader>
+  load_shader(const std::string &name, ShaderType type,
+              const std::vector<std::string> &paths);
   static std::shared_ptr<Shader> get_shader(const std::string &name);
 
   // Textures

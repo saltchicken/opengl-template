@@ -1,6 +1,7 @@
 #include "utils/ScriptingManager.h"
 #include "core/ScriptingContext.h"
 #include "core/Settings.h"
+#include "graphics/Shader.h"
 #include "graphics/renderers/IRenderer.h"
 #include "graphics/renderers/SceneRenderer.h"
 #include "scene/CameraComponent.h"
@@ -167,18 +168,27 @@ void ScriptingManager::bind_renderer_types() {
 }
 
 void ScriptingManager::bind_utility_types() {
+  // ‼️ NEW: Expose the ShaderType enum to Lua
+  s_lua_state->new_enum<ShaderType>(
+      "ShaderType",
+      {{"Graphics", ShaderType::Graphics}, {"Compute", ShaderType::Compute}});
+
   // ResourceManager
   auto resource_manager_type =
       s_lua_state->new_usertype<ResourceManager>("ResourceManager");
   resource_manager_type["get_primitive"] = &ResourceManager::get_primitive;
   resource_manager_type["load_texture"] = &ResourceManager::load_texture;
-  resource_manager_type["load_shader"] = sol::overload(
-      static_cast<std::shared_ptr<Shader> (*)(
-          const std::string &, const std::string &, const std::string &)>(
-          &ResourceManager::load_shader),
-      static_cast<std::shared_ptr<Shader> (*)(const std::string &,
-                                              const std::string &)>(
-          &ResourceManager::load_shader));
+  resource_manager_type["load_shader"] = [](const std::string &name,
+                                            ShaderType type,
+                                            const sol::table &paths_table) {
+    std::vector<std::string> paths;
+    for (const auto &kvp : paths_table) {
+      if (kvp.second.is<std::string>()) {
+        paths.push_back(kvp.second.as<std::string>());
+      }
+    }
+    return ResourceManager::load_shader(name, type, paths);
+  };
 }
 
 void ScriptingManager::bind_component_types() {
