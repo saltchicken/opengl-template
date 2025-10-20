@@ -1,4 +1,4 @@
-#include "graphics/SceneRenderer.h"
+#include "graphics/renderers/SceneRenderer.h"
 #include "core/Settings.h"
 #include "scene/CameraComponent.h"
 #include "scene/Scene.h"

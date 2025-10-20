@@ -1,4 +1,4 @@
-#include "graphics/CanvasRenderer.h"
+#include "graphics/renderers/CanvasRenderer.h"
 #include "core/Settings.h"
 #include "utils/Log.h"
 #include "utils/ResourceManager.h"
