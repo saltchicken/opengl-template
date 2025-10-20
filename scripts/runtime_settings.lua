@@ -7,14 +7,16 @@ function load_shaders()
 	-- You could load alternative shaders here as well for interactive switching
 	-- ResourceManager.load_shader("cel_shader", "shaders/cel.vert", "shaders/cel.frag")
 	ResourceManager.load_shader("box_test", "shaders/canvas.vert", "shaders/box_test.frag")
+	ResourceManager.load_shader("compute_test", "shaders/texture_compute.comp")
+	ResourceManager.load_shader("draw_texture", "shaders/canvas.vert", "shaders/shader.frag")
 end
 
 -- This function takes the C++ Config object and sets values on it.
 function configure_renderer(config)
 	print("[Lua] Configuring renderer settings...")
 	-- Tell the application which shaders to use by name
-	config.renderer_type = "scene"
+	config.renderer_type = "compute"
 
-	config.main_shader_name = "default"
+	config.main_shader_name = "compute_test"
 	config.canvas_shader_name = "box_test"
 end

@@ -172,7 +172,13 @@ void ScriptingManager::bind_utility_types() {
       s_lua_state->new_usertype<ResourceManager>("ResourceManager");
   resource_manager_type["get_primitive"] = &ResourceManager::get_primitive;
   resource_manager_type["load_texture"] = &ResourceManager::load_texture;
-  resource_manager_type["load_shader"] = &ResourceManager::load_shader;
+  resource_manager_type["load_shader"] = sol::overload(
+      static_cast<std::shared_ptr<Shader> (*)(
+          const std::string &, const std::string &, const std::string &)>(
+          &ResourceManager::load_shader),
+      static_cast<std::shared_ptr<Shader> (*)(const std::string &,
+                                              const std::string &)>(
+          &ResourceManager::load_shader));
 }
 
 void ScriptingManager::bind_component_types() {

@@ -16,6 +16,8 @@ public:
   static std::shared_ptr<Shader> load_shader(const std::string &name,
                                              const std::string &v_shader_file,
                                              const std::string &f_shader_file);
+  static std::shared_ptr<Shader> load_shader(const std::string &name,
+                                             const std::string &c_shader_file);
   static std::shared_ptr<Shader> get_shader(const std::string &name);
 
   // Textures

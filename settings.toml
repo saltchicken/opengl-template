@@ -3,7 +3,7 @@ width = 1920
 height = 1080
 title = "My OpenGL App"
 resizable = true
-transparent = true
+transparent = false
 
 # Performance settings
 [performance]

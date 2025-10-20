@@ -28,6 +28,23 @@ ResourceManager::load_shader(const std::string &name,
   return m_shaders[name];
 }
 
+std::shared_ptr<Shader>
+ResourceManager::load_shader(const std::string &name,
+                             const std::string &c_shader_file) {
+  if (m_shaders.find(name) == m_shaders.end()) {
+    try {
+      auto shader = std::make_shared<Shader>(c_shader_file);
+      m_shaders[name] = shader;
+      return shader;
+    } catch (const std::exception &e) {
+      std::cerr << "Failed to load compute shader '" << name
+                << "': " << e.what() << std::endl;
+      return nullptr;
+    }
+  }
+  return m_shaders[name];
+}
+
 std::shared_ptr<Shader> ResourceManager::get_shader(const std::string &name) {
   if (m_shaders.find(name) != m_shaders.end()) {
     return m_shaders[name];

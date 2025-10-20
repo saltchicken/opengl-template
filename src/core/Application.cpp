@@ -9,6 +9,7 @@
 #include "core/events/KeyEvent.h"
 #include "core/events/MouseEvent.h"
 #include "graphics/renderers/CanvasRenderer.h"
+#include "graphics/renderers/ComputeRenderer.h"
 #include "graphics/renderers/IRenderer.h"
 #include "graphics/renderers/SceneRenderer.h"
 #include "scene/Scene.h"
@@ -122,10 +123,12 @@ void Application::run() {
   } else if (config.renderer_type == "scene") {
     Log::info("Creating SceneRenderer based on settings.");
     m_renderer = std::make_unique<SceneRenderer>();
+  } else if (config.renderer_type == "compute") {
+    Log::info("Creating ComputeRenderer based on settings.");
+    m_renderer = std::make_unique<ComputeRenderer>();
   } else {
     Log::warn("Unknown renderer type '" + config.renderer_type +
               "'. Defaulting to SceneRenderer.");
-    m_renderer = std::make_unique<SceneRenderer>();
   }
 
   // Now that the renderer exists, set it in the context.
